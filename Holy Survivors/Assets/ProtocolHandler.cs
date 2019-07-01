@@ -26,27 +26,9 @@ namespace HD
                         // info messages includes usernames, role selections and ready statements
                         // info message's second element is added for setting list type
 
-                        object[] updateMsg = new object[2 + UDPChat.instance.playerList.ToArray().Length];
-
-                        updateMsg[0] = ProtocolLabels.lobbyListInfo;
-                        updateMsg[1] = "playerList";
-
-                        // Runtime debug for now
-                        MainSceneEventHandler.instance.countDownText.text += 
-                                                            UDPChat.instance.playerList.ToArray().Length;
-
-                        for(int i = 0; i < 4; i++)
-                        {
-                            // Runtime debug for now
-                            MainSceneEventHandler.instance.countDownText.text += 
-                            UDPChat.instance.playerList[i] + " ";
-
-                            updateMsg[i + 2] = UDPChat.instance.playerList[i];                          
-                        }      
-                        
-                        string lobbyInfoMsg = MessageMaker.makeMessage(updateMsg);
-
-                        UDPChat.instance.connection.Send(lobbyInfoMsg, ipEndpoint);  
+                        listChanged("playerList", ipEndpoint);
+                        listChanged("roleList", ipEndpoint);
+                        listChanged("stateList", ipEndpoint);  
 
                         // For older clients
                         // object[] nameMsg = new object[2]{ProtocolLabels.newClient, sections[1]};
@@ -94,7 +76,7 @@ namespace HD
 
                         for(int i = 0; i < sections.Length; i++)
                         {
-                            MainSceneEventHandler.instance.countDownText.text += sections[i];
+                            MainSceneEventHandler.instance.countDownText.text += sections[i] + " ";
                         }
                         break;
                     
@@ -131,24 +113,57 @@ namespace HD
             }
         }
 
-            // internal void listChanged(string listType)
-            // {
-            //     // updatePlayerList MainSceneEventHandler.updateLobbyList();
+            internal static void listChanged(string listType, IPEndPoint ipEndpoint)
+            {
+                object[] updateMsg = new object[6];
+
+                updateMsg[0] = ProtocolLabels.lobbyListInfo;
+                updateMsg[1] = "playerList";
+
+                switch(listType)
+                {
+                    case "playerList":
+                        updateMsg = new object[2 + UDPChat.instance.playerList.ToArray().Length];
+
+                        for(int i = 0; i < UDPChat.instance.playerList.ToArray().Length; i++)
+                        {
+                            // Runtime debug for now
+                            MainSceneEventHandler.instance.countDownText.text += "player ";
+                            
+                            updateMsg[i + 2] = UDPChat.instance.playerList[i];                          
+                        }
+
+                        break;
+                    case "roleList":
+                        updateMsg = new object[2 + UDPChat.instance.roleList.Length];
+
+                        for(int i = 0; i < UDPChat.instance.roleList.Length; i++)
+                        {
+                            // Runtime debug for now
+                            MainSceneEventHandler.instance.countDownText.text += "role ";
+                            
+                            updateMsg[i + 2] = UDPChat.instance.roleList[i];                          
+                        }
+
+                        break;
+                    case "stateList":
+                        updateMsg = new object[2 + UDPChat.instance.stateList.Length];
+
+                        for(int i = 0; i < UDPChat.instance.stateList.Length; i++)
+                        {
+                            // Runtime debug for now
+                            MainSceneEventHandler.instance.countDownText.text += "state ";
+                            
+                            updateMsg[i + 2] = UDPChat.instance.stateList[i];                          
+                        }
+
+                        break;
+                         
+                }                      
                 
-            //     string response = "";
-                
-            //     object[] newList = new object[1 + UDPChat.instance.playerList.ToArray().Length];
+                string response = MessageMaker.makeMessage(updateMsg);
 
-            //     newList.SetValue("L1", 0);
-
-            //     for(int i = 1; i < newList.Length; i++)
-            //     {
-            //         newList.SetValue(UDPChat.instance.playerList[i - 1], i);
-            //     }
-
-            //     response = MessageMaker.makeMessage(newList);
-
-            //     UDPChat.instance.Send(response);
-            // }
+                UDPChat.instance.connection.Send(response, ipEndpoint);  
+            }
     }
 }    

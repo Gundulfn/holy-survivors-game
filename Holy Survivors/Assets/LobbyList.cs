@@ -99,17 +99,19 @@ namespace HD
             {
                 UDPChat.instance.roleList[i] = value;
 
+                MainSceneEventHandler.instance.countDownText.text += "roleList value: " + value;
                 LobbyList.updateRoleList();
             }
             else if(arrayName == "stateList")
             {
                 UDPChat.instance.stateList[i] = value;
-
+                
+                MainSceneEventHandler.instance.countDownText.text += "stateList value: " + value;
                 LobbyList.updateStateList();
             }
             else
             {
-                Debug.Log("Array name is not defined");
+                MainSceneEventHandler.instance.countDownText.text += "Array name is not defined";
             }
         }
     }
