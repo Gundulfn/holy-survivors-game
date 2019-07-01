@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,10 +32,13 @@ namespace HD
 
         internal static void updatePlayerList()
         {
+            UDPChat.instance.playerList.RemoveAt(0);
+            
             for(int i = 0; i < UDPChat.instance.playerList.ToArray().Length; i++)
             {   
-                instance.textList[i].SetText(UDPChat.instance.playerList[i]);  
+                instance.textList[i].SetText(UDPChat.instance.playerList[i]);                  
             }
+            
         }
 
         internal static void updateRoleList()
@@ -49,7 +53,7 @@ namespace HD
         { 
             for(int i = 0; i < UDPChat.instance.stateList.Length; i++)
             {   
-                instance.stateList[i].SetText(UDPChat.instance.stateList[i]);
+                instance.stateList[i].SetText("2");
             }        
         }
 
@@ -99,14 +103,12 @@ namespace HD
             {
                 UDPChat.instance.roleList[i] = value;
 
-                MainSceneEventHandler.instance.countDownText.text += "roleList value: " + value;
                 LobbyList.updateRoleList();
             }
             else if(arrayName == "stateList")
             {
                 UDPChat.instance.stateList[i] = value;
-                
-                MainSceneEventHandler.instance.countDownText.text += "stateList value: " + value;
+
                 LobbyList.updateStateList();
             }
             else
