@@ -35,7 +35,7 @@ namespace HD
     public void Awake()
     {
       instance = this;
-      username = HD.MainSceneEventHandler.instance.usernameInput.text;
+      username = MainSceneEventHandler.instance.usernameInput.text;
 
       if(serverIp == null)
       {
@@ -43,7 +43,7 @@ namespace HD
         connection = new UdpConnectedClient();
 
         instance.playerList.Add(username);
-        LobbyList.updatePlayerList();
+        LobbyList.setPlayerName(username);
       }
       else
       {

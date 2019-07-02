@@ -13,9 +13,11 @@ namespace HD
         // LobbyList Arrays
         public PlayerSection[] playerSections;
 
-        internal TextMeshProUGUI[] textList = new TextMeshProUGUI[4];
-        internal RawImage[] imageList = new RawImage[4];
-        internal TextMeshProUGUI[] stateList = new TextMeshProUGUI[4];
+        internal List<TextMeshProUGUI> textList = new List<TextMeshProUGUI>();
+        internal List<RawImage> imageList = new List<RawImage>();
+        internal List<TextMeshProUGUI> stateList = new List<TextMeshProUGUI>();
+        
+        internal List<string> nameList = new List<string>();
         
         void Start()
         {
@@ -23,48 +25,17 @@ namespace HD
 
             for(int i = 0; i < playerSections.Length; i++)
             {
-                textList[i] = playerSections[i].playerText;
-                imageList[i] = playerSections[i].roleImage;
-                stateList[i] = playerSections[i].stateText;
+                textList.Add(playerSections[i].playerText);
+                imageList.Add(playerSections[i].roleImage);
+                stateList.Add(playerSections[i].stateText);
             }
         }
 
-        internal static void updatePlayerList()
-        {
-            for(int i = 0; i < UDPChat.instance.playerList.ToArray().Length; i++)
-            {   
-                instance.textList[i].SetText(UDPChat.instance.playerList[i]);  
-            }
-        }
-
-        internal static void updateRoleList()
-        {   
-            for(int i = 0; i < UDPChat.instance.roleList.Length; i++)
-            {   
-                instance.imageList[i].color = colorByRoleName(UDPChat.instance.roleList[i]);
-            }                 
-        }
-
-        internal static void updateStateList()
-        { 
-            for(int i = 0; i < UDPChat.instance.stateList.Length; i++)
-            {   
-                instance.stateList[i].SetText(UDPChat.instance.stateList[i]);
-            }        
-        }
-
-        internal static void updateLobbyList()
-        {
-            updatePlayerList();
-            updateRoleList();
-            updateStateList();
-        }
-
-        internal static Color colorByRoleName(string roleName)
+        internal static void setRolePref(string value, string username)
         {
             Color roleImageColor = Color.white;
 
-            switch(roleName)
+            switch(value)
             {
                 case "hunter":
                     roleImageColor = Color.yellow;
@@ -87,32 +58,39 @@ namespace HD
                     break; 
             }
 
-            return roleImageColor;
+            int playerNo = instance.nameList.IndexOf(username);
+            instance.imageList[playerNo].color = roleImageColor;
         }
     
-        internal static void setValueByUsername(string username, string arrayName, 
-                                                    string value)
+        internal static void setPlayerName(string value)
         {
-            int i = UDPChat.instance.playerList.IndexOf(username);
+            bool continueSearch = false;
+            instance.nameList.Add(value);
 
-            if(arrayName == "roleList")
+            foreach(TextMeshProUGUI text in instance.textList)
             {
-                UDPChat.instance.roleList[i] = value;
-
-                MainSceneEventHandler.instance.countDownText.text += "roleList value: " + value;
-                LobbyList.updateRoleList();
+                if(text.text == "" && !continueSearch)
+                {
+                    text.SetText(value);
+                    continueSearch = true;
+                }
             }
-            else if(arrayName == "stateList")
+        }
+    
+        internal static void setReadyStatement(bool readyState, string username)
+        {
+            int stateNo = instance.nameList.IndexOf(username);
+
+            if(readyState)
             {
-                UDPChat.instance.stateList[i] = value;
-                
-                MainSceneEventHandler.instance.countDownText.text += "stateList value: " + value;
-                LobbyList.updateStateList();
+                instance.stateList[stateNo].SetText("R");
+                instance.stateList[stateNo].color = Color.green;
             }
             else
             {
-                MainSceneEventHandler.instance.countDownText.text += "Array name is not defined";
-            }
+                instance.stateList[stateNo].SetText("N");
+                instance.stateList[stateNo].color = Color.white;
+            } 
         }
     }
 }
