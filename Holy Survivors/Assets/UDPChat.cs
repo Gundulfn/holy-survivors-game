@@ -62,9 +62,9 @@ namespace HD
         instance.clientList.Add(ipEndpoint);
         
         // Request Message to Join Lobby
-        object[] req = new object[2]{ProtocolLabels.joinGame, instance.username};
+        object[] req = new object[2]{ProtocolLabels.newClient, instance.username};
         string message = MessageMaker.makeMessage(req);
-        instance.connection.Send(message, ipEndpoint);
+        instance.Send(message);
       }
     }
 
