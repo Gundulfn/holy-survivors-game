@@ -42,7 +42,6 @@ namespace HD
         this.isServer = true;
         connection = new UdpConnectedClient();
 
-        instance.playerList.Add(username);
         LobbyList.setPlayerName(username);
       }
       else

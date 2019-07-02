@@ -18,12 +18,13 @@ namespace HD
                 {
                     case ProtocolLabels.newClient:
 
-                        UDPChat.instance.playerList.Add(sections[1]);
+                        // UDPChat.instance.playerList.Add(sections[1]);
                         LobbyList.setPlayerName(sections[1]);
 
                         // give info about itself to client to update it
 
-                        object[] nameMsg = new object[2]{ProtocolLabels.clientInfo, UDPChat.instance.username};
+                        object[] nameMsg = new object[2]{ ProtocolLabels.clientInfo, 
+                                                          UDPChat.instance.username };
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
                         UDPChat.instance.connection.Send(infoMsg, ipEndpoint);
@@ -40,8 +41,6 @@ namespace HD
 
                         UDPChat.instance.playerList.Remove(sections[1]);
                         UDPChat.RemoveClient(ipEndpoint);
-
-                    
                         
                         UDPChat.instance.Send(message);
                         break;
@@ -56,14 +55,11 @@ namespace HD
                 {
                     case ProtocolLabels.clientInfo:
 
-                        UDPChat.instance.playerList.Add(sections[1]);
                         LobbyList.setPlayerName(sections[1]);
 
                         break;
                     
                     case ProtocolLabels.newClient:
-
-                        UDPChat.instance.playerList.Add(sections[1]);
                         LobbyList.setPlayerName(sections[1]);
 
                         object[] nameMsg = new object[2]{ProtocolLabels.clientInfo, UDPChat.instance.username};

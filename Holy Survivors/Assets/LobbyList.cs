@@ -58,28 +58,22 @@ namespace HD
                     break; 
             }
 
-            int playerNo = instance.nameList.IndexOf(username);
-            instance.imageList[playerNo].color = roleImageColor;
+            int imgNo = UDPChat.instance.playerList.IndexOf(username);
+            instance.imageList[imgNo].color = roleImageColor;
         }
     
         internal static void setPlayerName(string value)
         {
-            bool continueSearch = false;
-            instance.nameList.Add(value);
+            UDPChat.instance.playerList.Add(value);
 
-            foreach(TextMeshProUGUI text in instance.textList)
-            {
-                if(text.text == "" && !continueSearch)
-                {
-                    text.SetText(value);
-                    continueSearch = true;
-                }
-            }
+            int textNo = UDPChat.instance.playerList.IndexOf(value);
+            
+            instance.textList.ToArray()[textNo].SetText(value);
         }
     
         internal static void setReadyStatement(bool readyState, string username)
         {
-            int stateNo = instance.nameList.IndexOf(username);
+            int stateNo = UDPChat.instance.playerList.IndexOf(username);
 
             if(readyState)
             {
