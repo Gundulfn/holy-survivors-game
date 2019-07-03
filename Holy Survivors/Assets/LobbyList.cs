@@ -62,13 +62,20 @@ namespace HD
             instance.imageList[imgNo].color = roleImageColor;
         }
     
-        internal static void setPlayerName(string value)
+        internal static void setPlayerName(string value, int textNo = 0)
         {
-            UDPChat.instance.playerList.Add(value);
-
-            int textNo = UDPChat.instance.playerList.IndexOf(value);
-            
-            instance.textList.ToArray()[textNo].SetText(value);
+            if(UDPChat.instance.isServer)
+            {
+                UDPChat.instance.playerList.Add(value);
+                int x = UDPChat.instance.playerList.IndexOf(value);
+                
+                instance.textList[x].SetText(value);
+            }
+            else
+            {
+                instance.textList[textNo].SetText(value);
+            }
+ 
         }
     
         internal static void setReadyStatement(bool readyState, string username)

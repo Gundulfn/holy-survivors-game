@@ -25,6 +25,7 @@ namespace HD
     internal List<IPEndPoint> clientList = new List<IPEndPoint>();
 
     //For usernames, game settings and more
+    internal static int clientNo = 0;
     internal List<string> playerList = new List<string>();
     internal string[] roleList = new string[4];
     internal string[] stateList = new string[4];
@@ -42,7 +43,7 @@ namespace HD
         this.isServer = true;
         connection = new UdpConnectedClient();
 
-        LobbyList.setPlayerName(username);
+        LobbyList.setPlayerName(username, 0);
       }
       else
       {

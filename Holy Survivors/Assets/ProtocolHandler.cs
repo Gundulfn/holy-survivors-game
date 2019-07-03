@@ -23,8 +23,10 @@ namespace HD
 
                         // give info about itself to client to update it
 
-                        object[] nameMsg = new object[2]{ ProtocolLabels.clientInfo, 
-                                                          UDPChat.instance.username };
+                        object[] nameMsg = new object[3]{ ProtocolLabels.clientInfo, 
+                                                          UDPChat.instance.username, 
+                                                          UDPChat.instance.playerList.IndexOf(sections[1])
+                                                          };
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
                         UDPChat.instance.connection.Send(infoMsg, ipEndpoint);
@@ -54,13 +56,27 @@ namespace HD
                 switch(messageType)
                 {
                     case ProtocolLabels.clientInfo:
+                        
+                        if(UDPChat.clientNo == 0)
+                        {
+                            LobbyList.setPlayerName(sections[1]);
+                            
+                            UDPChat.clientNo = System.Int32.Parse(sections[2]);
+                            LobbyList.setPlayerName(UDPChat.instance.username, 
+                                                    UDPChat.clientNo);
+                        }
+                        else
+                        {
+                            LobbyList.setPlayerName(UDPChat.instance.username, System.Int32.Parse(sections[2]));
+                        }
 
-                        LobbyList.setPlayerName(sections[1]);
+                        
 
                         break;
                     
                     case ProtocolLabels.newClient:
-                        LobbyList.setPlayerName(sections[1]);
+                    
+                        LobbyList.setPlayerName(sections[1], UDPChat.clientNo+1);
 
                         object[] nameMsg = new object[2]{ProtocolLabels.clientInfo, UDPChat.instance.username};
 
