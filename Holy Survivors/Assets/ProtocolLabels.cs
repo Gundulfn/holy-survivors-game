@@ -6,12 +6,13 @@ namespace HD
 {
     public static class ProtocolLabels
     {
-        public const string newClient = "L0";
-        public const string clientInfo = "L1";
-        public const string roleSelected = "L2";
-        public const string clientLeft = "L3";
-        public const string clientReady = "L4";
-        public const string gameAction = "L5";
+        public const string joinRequest = "L0";
+        public const string newClient = "L1";
+        public const string clientInfo = "L2";
+        public const string roleSelected = "L3";
+        public const string clientLeft = "L4";
+        public const string clientReady = "L5";
+        public const string gameAction = "L6";
         
     }
 }

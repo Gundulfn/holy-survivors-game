@@ -62,9 +62,9 @@ namespace HD
         instance.clientList.Add(ipEndpoint);
         
         // Request Message to Join Lobby
-        object[] req = new object[2]{ProtocolLabels.newClient, instance.username};
+        object[] req = new object[2]{ProtocolLabels.joinRequest, instance.username};
         string message = MessageMaker.makeMessage(req);
-        instance.Send(message);
+        instance.connection.Send(message, ipEndpoint);
       }
     }
 
@@ -102,7 +102,7 @@ namespace HD
     }
     
     internal void clientDisconnected(){
-      object[] exitMsgParts = new object[2]{ProtocolLabels.clientLeft, username};
+      object[] exitMsgParts = new object[2]{ProtocolLabels.clientLeft, clientNo};
       
       string exitMsg = MessageMaker.makeMessage(exitMsgParts);
 

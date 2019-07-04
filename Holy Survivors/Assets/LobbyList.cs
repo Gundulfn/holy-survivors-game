@@ -31,7 +31,7 @@ namespace HD
             }
         }
 
-        internal static void setRolePref(string value, string username)
+        internal static void setRolePref(string value, int imgNo = 0)
         {
             Color roleImageColor = Color.white;
 
@@ -58,7 +58,6 @@ namespace HD
                     break; 
             }
 
-            int imgNo = UDPChat.instance.playerList.IndexOf(username);
             instance.imageList[imgNo].color = roleImageColor;
         }
     
@@ -78,19 +77,16 @@ namespace HD
  
         }
     
-        internal static void setReadyStatement(bool readyState, string username)
+        internal static void setReadyStatement(string readyState, int stateNo = 0)
         {
-            int stateNo = UDPChat.instance.playerList.IndexOf(username);
 
-            if(readyState)
+            if(readyState == "R")
             {
                 instance.stateList[stateNo].SetText("R");
-                instance.stateList[stateNo].color = Color.green;
             }
             else
             {
                 instance.stateList[stateNo].SetText("N");
-                instance.stateList[stateNo].color = Color.white;
             } 
         }
     }

@@ -16,16 +16,19 @@ namespace HD
             {
                 switch(messageType)
                 {
-                    case ProtocolLabels.newClient:
+                    case ProtocolLabels.joinRequest:
 
-                        // UDPChat.instance.playerList.Add(sections[1]);
                         LobbyList.setPlayerName(sections[1]);
 
                         // give info about itself to client to update it
-
-                        object[] nameMsg = new object[3]{ ProtocolLabels.clientInfo, 
+                        // and set its clientInfo
+                        MainSceneEventHandler.instance.countDownText.text += UDPChat.instance.roleList[0] +
+                                                                             " " + UDPChat.instance.stateList[0];
+                        object[] nameMsg = new object[5]{ ProtocolLabels.clientInfo, 
                                                           UDPChat.instance.username, 
-                                                          UDPChat.instance.playerList.IndexOf(sections[1])
+                                                          UDPChat.instance.playerList.IndexOf(sections[1]),
+                                                          UDPChat.instance.roleList[0],
+                                                          UDPChat.instance.stateList[0]
                                                           };
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
@@ -34,7 +37,7 @@ namespace HD
 
                     case ProtocolLabels.roleSelected:
 
-                        LobbyList.setRolePref(sections[2], sections[1]);             
+                        LobbyList.setRolePref(sections[2], System.Int32.Parse(sections[1]));             
 
                         UDPChat.instance.Send(message);
                         break;
@@ -59,26 +62,41 @@ namespace HD
                         
                         if(UDPChat.clientNo == 0)
                         {
+                            //add server
                             LobbyList.setPlayerName(sections[1]);
-                            
+                            LobbyList.setRolePref(sections[3]);
+                            LobbyList.setReadyStatement(sections[4]);
+
                             UDPChat.clientNo = System.Int32.Parse(sections[2]);
+                            
                             LobbyList.setPlayerName(UDPChat.instance.username, 
-                                                    UDPChat.clientNo);
+                                                    UDPChat.clientNo);                  
+                            
+                            // object[] clientMsg = new object[3]{ProtocolLabels.newClient, 
+                            //                                    UDPChat.instance.username,
+                            //                                    UDPChat.clientNo};
+
+                            // string othersMsg = MessageMaker.makeMessage(clientMsg);
+                            // UDPChat.instance.Send(othersMsg);                        
                         }
                         else
                         {
-                            LobbyList.setPlayerName(UDPChat.instance.username, System.Int32.Parse(sections[2]));
-                        }
-
-                        
+                            LobbyList.setPlayerName(sections[1], System.Int32.Parse(sections[2]));
+                            LobbyList.setRolePref(sections[3], System.Int32.Parse(sections[2]));
+                            LobbyList.setReadyStatement(sections[4], System.Int32.Parse(sections[2]));
+                        }                        
 
                         break;
                     
                     case ProtocolLabels.newClient:
                     
-                        LobbyList.setPlayerName(sections[1], UDPChat.clientNo+1);
+                        LobbyList.setPlayerName(sections[1], System.Int32.Parse(sections[2]));
 
-                        object[] nameMsg = new object[2]{ProtocolLabels.clientInfo, UDPChat.instance.username};
+                        object[] nameMsg = new object[5]{ProtocolLabels.clientInfo, 
+                                                         UDPChat.instance.username,
+                                                         UDPChat.clientNo,
+                                                         UDPChat.instance.roleList[UDPChat.clientNo],
+                                                         UDPChat.instance.stateList[UDPChat.clientNo]};
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
                         UDPChat.instance.connection.Send(infoMsg, ipEndpoint);

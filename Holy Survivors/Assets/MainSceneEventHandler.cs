@@ -122,7 +122,7 @@ namespace HD
             {
                 // Server must set them by itself
                 UDPChat.instance.roleList[0] = roleName;
-                LobbyList.setRolePref(roleName, UDPChat.instance.username);
+                LobbyList.setRolePref(roleName);
 
                 UDPChat.instance.Send(msg);
             }
