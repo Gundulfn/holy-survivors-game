@@ -22,8 +22,9 @@ namespace HD
 
                         // give info about itself to client to update it
                         // and set its clientInfo
-                        MainSceneEventHandler.instance.countDownText.text += UDPChat.instance.roleList[0] +
-                                                                             " " + UDPChat.instance.stateList[0];
+                        
+                        MainSceneEventHandler.instance.countDownText.SetText(UDPChat.instance.roleList[0] + " "+ UDPChat.instance.stateList[0]);
+       
                         object[] nameMsg = new object[5]{ ProtocolLabels.clientInfo, 
                                                           UDPChat.instance.username, 
                                                           UDPChat.instance.playerList.IndexOf(sections[1]),
@@ -43,8 +44,12 @@ namespace HD
                         break;
 
                     case ProtocolLabels.clientLeft:
+                        int leftClientNo = System.Int32.Parse(sections[1]);
 
-                        UDPChat.instance.playerList.Remove(sections[1]);
+                        LobbyList.setPlayerName("", leftClientNo);
+                        LobbyList.setRolePref("", leftClientNo);
+                        LobbyList.setReadyStatement("", leftClientNo);
+                        
                         UDPChat.RemoveClient(ipEndpoint);
                         
                         UDPChat.instance.Send(message);
@@ -66,18 +71,19 @@ namespace HD
                             LobbyList.setPlayerName(sections[1]);
                             LobbyList.setRolePref(sections[3]);
                             LobbyList.setReadyStatement(sections[4]);
-
+                            
+                            //client settings
                             UDPChat.clientNo = System.Int32.Parse(sections[2]);
                             
                             LobbyList.setPlayerName(UDPChat.instance.username, 
                                                     UDPChat.clientNo);                  
                             
-                            // object[] clientMsg = new object[3]{ProtocolLabels.newClient, 
-                            //                                    UDPChat.instance.username,
-                            //                                    UDPChat.clientNo};
+                            object[] clientMsg = new object[3]{ProtocolLabels.newClient, 
+                                                               UDPChat.instance.username,
+                                                               UDPChat.clientNo};
 
-                            // string othersMsg = MessageMaker.makeMessage(clientMsg);
-                            // UDPChat.instance.Send(othersMsg);                        
+                            string othersMsg = MessageMaker.makeMessage(clientMsg);
+                            UDPChat.instance.Send(othersMsg);                        
                         }
                         else
                         {
@@ -103,13 +109,17 @@ namespace HD
                         break;
 
                     case ProtocolLabels.roleSelected:
-
+                        LobbyList.setRolePref(sections[2], System.Int32.Parse(sections[1]));
                    
                         break;
 
                     case ProtocolLabels.clientLeft:
 
-                        UDPChat.instance.playerList.Remove(sections[1]);
+                        int leftClientNo = System.Int32.Parse(sections[1]);
+
+                        LobbyList.setPlayerName("", leftClientNo);
+                        LobbyList.setRolePref("", leftClientNo);
+                        LobbyList.setReadyStatement("", leftClientNo);
 
                         break;
 

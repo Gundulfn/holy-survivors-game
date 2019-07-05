@@ -99,6 +99,8 @@ namespace HD
             resetUDP();
             
             // Set UI elements to show Main Menu
+            LobbyList.clearLobbyList();
+
             lobbyUI.SetActive(false);
             lobbyGameButton.SetActive(false);
             mainUI.SetActive(true);
@@ -112,9 +114,10 @@ namespace HD
 
         public void roleButtonFunc(string roleName)
         {
-            object[] roleInfo = new object[3] {ProtocolLabels.roleSelected, 
-                                               UDPChat.instance.username, 
-                                               roleName};
+            object[] roleInfo = new object[3]{ ProtocolLabels.roleSelected, 
+                                               UDPChat.clientNo, 
+                                               roleName
+                                             };
 
             string msg = MessageMaker.makeMessage(roleInfo);
             

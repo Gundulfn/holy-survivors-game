@@ -16,9 +16,7 @@ namespace HD
         internal List<TextMeshProUGUI> textList = new List<TextMeshProUGUI>();
         internal List<RawImage> imageList = new List<RawImage>();
         internal List<TextMeshProUGUI> stateList = new List<TextMeshProUGUI>();
-        
-        internal List<string> nameList = new List<string>();
-        
+
         void Start()
         {
             instance = this;
@@ -62,13 +60,21 @@ namespace HD
         }
     
         internal static void setPlayerName(string value, int textNo = 0)
-        {
+        {            
             if(UDPChat.instance.isServer)
             {
-                UDPChat.instance.playerList.Add(value);
-                int x = UDPChat.instance.playerList.IndexOf(value);
-                
-                instance.textList[x].SetText(value);
+                if(value == "")
+                {
+                    UDPChat.instance.playerList.RemoveAt(textNo);
+                    instance.textList[textNo].SetText(value);
+                }
+                else
+                {
+                    UDPChat.instance.playerList.Add(value);
+                    int x = UDPChat.instance.playerList.IndexOf(value);
+                    
+                    instance.textList[x].SetText(value);    
+                }         
             }
             else
             {
@@ -83,11 +89,23 @@ namespace HD
             if(readyState == "R")
             {
                 instance.stateList[stateNo].SetText("R");
+                instance.stateList[stateNo].color = Color.green;
             }
             else
             {
                 instance.stateList[stateNo].SetText("N");
+                instance.stateList[stateNo].color = Color.white;
             } 
+        }
+
+        internal static void clearLobbyList()
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                setPlayerName("", i);
+                setRolePref("", i);
+                setReadyStatement("", i);
+            }
         }
     }
 }
