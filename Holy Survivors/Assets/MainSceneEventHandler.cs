@@ -70,7 +70,6 @@ namespace HD
                 IPAddress ip = IPAddress.Parse(ipText);
                 udp.GetComponent<UDPChat>().serverIp = ip;
                 udp.SetActive(true);
-                
             }
         }
 
@@ -121,10 +120,11 @@ namespace HD
 
             string msg = MessageMaker.makeMessage(roleInfo);
             
+            UDPChat.instance.roleName = roleName;
+
             if(UDPChat.instance.isServer)
             {
-                // Server must set them by itself
-                UDPChat.instance.roleList[0] = roleName;
+                // Server must set roleName to lobby list by itself    
                 LobbyList.setRolePref(roleName);
 
                 UDPChat.instance.Send(msg);

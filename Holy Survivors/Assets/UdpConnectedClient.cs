@@ -11,6 +11,7 @@ namespace HD
   public class UdpConnectedClient
   {
     readonly UdpClient connection;
+    
     public UdpConnectedClient(IPAddress ip = null)
     {
       if(UDPChat.instance.isServer)

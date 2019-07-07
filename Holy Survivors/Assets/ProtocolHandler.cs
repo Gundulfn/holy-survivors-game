@@ -11,7 +11,8 @@ namespace HD
         {         
             string[] sections = message.Split(';');
             string messageType = sections[0];
-        
+            MainSceneEventHandler.instance.countDownText.text += message + " ";
+            
             if(UDPChat.instance.isServer)
             {
                 switch(messageType)
@@ -22,14 +23,12 @@ namespace HD
 
                         // give info about itself to client to update it
                         // and set its clientInfo
-                        
-                        MainSceneEventHandler.instance.countDownText.SetText(UDPChat.instance.roleList[0] + " "+ UDPChat.instance.stateList[0]);
        
                         object[] nameMsg = new object[5]{ ProtocolLabels.clientInfo, 
                                                           UDPChat.instance.username, 
                                                           UDPChat.instance.playerList.IndexOf(sections[1]),
-                                                          UDPChat.instance.roleList[0],
-                                                          UDPChat.instance.stateList[0]
+                                                          UDPChat.instance.roleName,
+                                                          UDPChat.instance.readyStatement
                                                           };
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
@@ -45,14 +44,21 @@ namespace HD
 
                     case ProtocolLabels.clientLeft:
                         int leftClientNo = System.Int32.Parse(sections[1]);
-
-                        LobbyList.setPlayerName("", leftClientNo);
-                        LobbyList.setRolePref("", leftClientNo);
-                        LobbyList.setReadyStatement("", leftClientNo);
+                        int playerListLength = UDPChat.instance.playerList.ToArray().Length;
+                        
+                        LobbyList.refreshLobbyList(leftClientNo, playerListLength);                        
                         
                         UDPChat.RemoveClient(ipEndpoint);
                         
-                        UDPChat.instance.Send(message);
+                        // message += ";" + playerListLength;
+
+                        // UDPChat.instance.Send(message);
+                        object[] exitMsgParts = new object[3]{ProtocolLabels.gameAction, sections[1], 
+                                                                playerListLength};
+      
+                        string exitMsg = MessageMaker.makeMessage(exitMsgParts);
+
+                        UDPChat.instance.Send(exitMsg);
                         break;
 
                     default:
@@ -64,7 +70,7 @@ namespace HD
                 switch(messageType)
                 {
                     case ProtocolLabels.clientInfo:
-                        
+
                         if(UDPChat.clientNo == 0)
                         {
                             //add server
@@ -101,8 +107,8 @@ namespace HD
                         object[] nameMsg = new object[5]{ProtocolLabels.clientInfo, 
                                                          UDPChat.instance.username,
                                                          UDPChat.clientNo,
-                                                         UDPChat.instance.roleList[UDPChat.clientNo],
-                                                         UDPChat.instance.stateList[UDPChat.clientNo]};
+                                                         UDPChat.instance.roleName,
+                                                         UDPChat.instance.readyStatement};
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
                         UDPChat.instance.connection.Send(infoMsg, ipEndpoint);
@@ -113,13 +119,12 @@ namespace HD
                    
                         break;
 
-                    case ProtocolLabels.clientLeft:
+                    case ProtocolLabels.gameAction:
 
                         int leftClientNo = System.Int32.Parse(sections[1]);
 
-                        LobbyList.setPlayerName("", leftClientNo);
-                        LobbyList.setRolePref("", leftClientNo);
-                        LobbyList.setReadyStatement("", leftClientNo);
+                        LobbyList.refreshLobbyList(leftClientNo, System.Int32.Parse(sections[2] + 1));
+                        
 
                         break;
 

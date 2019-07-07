@@ -24,11 +24,11 @@ namespace HD
     // For connection, protocol messages and more
     internal List<IPEndPoint> clientList = new List<IPEndPoint>();
 
-    //For usernames, game settings and more
     internal static int clientNo = 0;
+    
     internal List<string> playerList = new List<string>();
-    internal string[] roleList = new string[4];
-    internal string[] stateList = new string[4];
+    internal string roleName = "";
+    internal string readyStatement = "N";
     
     // Username Settings
     internal string username;
@@ -61,10 +61,14 @@ namespace HD
         UnityEngine.MonoBehaviour.print($"Connect to {ipEndpoint}");
         instance.clientList.Add(ipEndpoint);
         
-        // Request Message to Join Lobby
-        object[] req = new object[2]{ProtocolLabels.joinRequest, instance.username};
-        string message = MessageMaker.makeMessage(req);
-        instance.connection.Send(message, ipEndpoint);
+        // Request Message to Join Lobby      
+        if(!instance.isServer)
+        {
+          object[] req = new object[2]{ProtocolLabels.joinRequest, instance.username};
+          string message = MessageMaker.makeMessage(req);
+          instance.connection.Send(message, ipEndpoint);
+        }
+        
       }
     }
 
@@ -81,7 +85,7 @@ namespace HD
       }else{
         clientDisconnected();
       }
-
+      
       connection.Close();
     }
 
@@ -107,6 +111,8 @@ namespace HD
       string exitMsg = MessageMaker.makeMessage(exitMsgParts);
 
       instance.connection.Send(exitMsg, new IPEndPoint(instance.serverIp, Globals.port));
+
+      clientNo = 0;
     }
 
   }
