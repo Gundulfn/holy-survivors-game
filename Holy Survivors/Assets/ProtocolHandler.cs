@@ -53,6 +53,7 @@ namespace HD
                         // message += ";" + playerListLength;
 
                         // UDPChat.instance.Send(message);
+                        // Protocol label wii change
                         object[] exitMsgParts = new object[3]{ProtocolLabels.gameAction, sections[1], 
                                                                 playerListLength};
       
@@ -123,7 +124,7 @@ namespace HD
 
                         int leftClientNo = System.Int32.Parse(sections[1]);
 
-                        LobbyList.refreshLobbyList(leftClientNo, System.Int32.Parse(sections[2] + 1));
+                        LobbyList.refreshLobbyList(leftClientNo, System.Int32.Parse(sections[2]));
                         
 
                         break;
