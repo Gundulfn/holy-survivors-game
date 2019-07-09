@@ -29,6 +29,8 @@ namespace HD
     internal List<string> playerList = new List<string>();
     internal string roleName = "";
     internal string readyStatement = "N";
+
+    internal string gameState = "stop";
     
     // Username Settings
     internal string username;
@@ -43,7 +45,7 @@ namespace HD
         this.isServer = true;
         connection = new UdpConnectedClient();
 
-        LobbyList.setPlayerName(username, 0);
+        LobbyList.setPlayerName(username);
       }
       else
       {

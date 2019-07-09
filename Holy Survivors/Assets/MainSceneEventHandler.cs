@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -22,8 +24,10 @@ namespace HD
         private GameObject lobbyUI;
 
         // Special UI Element
-        public GameObject lobbyGameButton;
+        public GameObject startButton;
         public TextMeshProUGUI countDownText;
+        public GameObject roleButtonSection;
+        public GameObject lockButton;
 
         // InputField Settings
         public InputField usernameInput;
@@ -58,6 +62,34 @@ namespace HD
             }
         }
 
+        // Countdown Text Function
+        private static string message = "Game starts in ";
+        private static int second;
+
+        internal static IEnumerator startCountDown()
+        {
+            for(second = 15; second > 0; second--)
+            {
+                if(UDPChat.instance.gameState != "stop")
+                {
+                    instance.countDownText.SetText( message + second.ToString() );
+                    yield return new WaitForSeconds(1);
+                }
+                else
+                {
+                    instance.countDownText.SetText("");
+                    second = 15;
+                    break;
+                }
+            }
+
+            if(second == 1)
+            {
+                SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
+            }
+            
+        }
+
         // OnClick Functions
         public void clientButtonFunc()
         {
@@ -82,7 +114,7 @@ namespace HD
                 udp.SetActive(true);
                 UDPChat.instance.connectionFailed = false;
                 
-                lobbyGameButton.SetActive(true);
+                startButton.SetActive(true);
             }     
         }
         
@@ -99,18 +131,75 @@ namespace HD
             
             // Set UI elements to show Main Menu
             LobbyList.clearLobbyList();
+            
+            // Set "Lock Button" default state
+            UDPChat.instance.readyStatement = "N";
+            roleButtonSection.SetActive(true);
+            lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Lock";
 
             lobbyUI.SetActive(false);
-            lobbyGameButton.SetActive(false);
+            startButton.SetActive(false);
             mainUI.SetActive(true);
         }
+        
+        //// Start Button Functions
+        public void startButtonFunc()
+        {
+            if(instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text == "Start")
+            {
+                // check stateList if there is a unready player
 
-        public void startGameButtonFunc()
-        {}
+                string[] checkReadyList = new string[UDPChat.instance.playerList.ToArray().Length];
+
+                for(int i = 0; i < checkReadyList.Length; i++)
+                {
+                    checkReadyList[i] = LobbyList.instance.stateList[i].text;
+                }
+                
+                if(!checkReadyList.Contains("N"))
+                {
+                    startGame();
+                }
+
+            }
+            else
+            {   
+                stopGame();
+            }
+        }
+
+        private void startGame()
+        {
+            instance.countDownText.gameObject.SetActive(true);
+
+            instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Stop";
+            
+            UDPChat.instance.gameState = "start";
+            StartCoroutine(startCountDown());
+
+            object[] gameMsg = new object[2]{ProtocolLabels.gameAction, "start"};
+
+            string msg = MessageMaker.makeMessage(gameMsg);
+            
+            UDPChat.instance.Send(msg);
+        }
        
-        public void stopGameButtonFunc()
-        {}
+        private void stopGame()
+        {
+            instance.countDownText.gameObject.SetActive(false);
+            
+            instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Start";
 
+            UDPChat.instance.gameState = "stop";
+
+            object[] gameMsg = new object[2]{ ProtocolLabels.gameAction, "stop"};
+
+            string msg = MessageMaker.makeMessage(gameMsg);
+            
+            UDPChat.instance.Send(msg);
+        }
+
+        //// Role Buttons Function
         public void roleButtonFunc(string roleName)
         {
             object[] roleInfo = new object[3]{ ProtocolLabels.roleSelected, 
@@ -135,11 +224,65 @@ namespace HD
                                             new IPEndPoint(UDPChat.instance.serverIp, Globals.port));
             }
         }
-
-        // Common Functions in this script
         
-        /// To check username if it is approative or not
-        /// Username cannot be space like " "   
+        //// Lock button settings        
+        public void lockButtonFunc()
+        {
+            string buttonName = lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text;
+            
+            //Set lock button's function according to its name
+            if(buttonName == "Lock" && LobbyList.instance.imageList[UDPChat.clientNo].color != Color.white)
+            {
+                lockPref();
+            }
+            else if(buttonName == "Unlock" && !countDownText.gameObject.activeSelf) // add later 
+            {
+                unlockPref();
+            }
+        }
+
+        private void lockPref()
+        {
+            UDPChat.instance.readyStatement = "R"; // "R" means "Ready"
+            LobbyList.setReadyStatement("R", UDPChat.clientNo);
+            
+            
+            
+            object[] readyInfo = new object[3]{ProtocolLabels.clientReady, 
+                                              UDPChat.clientNo, 
+                                              "R"};
+        
+            string readyMsg = MessageMaker.makeMessage(readyInfo);
+
+            UDPChat.instance.Send(readyMsg);
+
+            roleButtonSection.SetActive(false);
+
+            lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Unlock";
+        }
+
+        private void unlockPref()
+        {
+            UDPChat.instance.readyStatement = "N"; // "N" means "Not Ready"
+            LobbyList.setReadyStatement("N", UDPChat.clientNo);
+
+            object[] unreadyInfo = new object[3]{ProtocolLabels.clientReady, 
+                                                 UDPChat.clientNo, 
+                                                 "N"};
+        
+            string unreadyMsg = MessageMaker.makeMessage(unreadyInfo);
+
+            UDPChat.instance.Send(unreadyMsg);
+
+            roleButtonSection.SetActive(true);
+
+            lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Lock";
+        }
+
+        // Common Functions in this script 
+        
+        //// To check username if it is approative or not
+        //// Username cannot be space like " "   
         private bool isUsernameApproative;
 
         private bool checkUserName(string username)
@@ -161,13 +304,12 @@ namespace HD
             return isUsernameApproative;
         }
 
-        /// set "udp" a new gameobject with "udpPrefab"
+        //// set "udp" a new gameobject with "udpPrefab"
         private void resetUDP()
         {
             Destroy(udp);
             udp = Instantiate(udpPrefab);
             udp.name = "UDP GameObject";
         }
-    
     }    
 }

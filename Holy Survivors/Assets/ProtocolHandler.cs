@@ -11,6 +11,7 @@ namespace HD
         {         
             string[] sections = message.Split(';');
             string messageType = sections[0];
+            // Was for looking message in runtime
             MainSceneEventHandler.instance.countDownText.text += message + " ";
             
             if(UDPChat.instance.isServer)
@@ -42,7 +43,13 @@ namespace HD
                         UDPChat.instance.Send(message);
                         break;
 
+                    case ProtocolLabels.clientReady:
+                        
+                        LobbyList.setReadyStatement(sections[2], System.Int32.Parse(sections[1]));
+                        break;
+                    
                     case ProtocolLabels.clientLeft:
+                        
                         int leftClientNo = System.Int32.Parse(sections[1]);
                         int playerListLength = UDPChat.instance.playerList.ToArray().Length;
                         
@@ -50,11 +57,7 @@ namespace HD
                         
                         UDPChat.RemoveClient(ipEndpoint);
                         
-                        // message += ";" + playerListLength;
-
-                        // UDPChat.instance.Send(message);
-                        // Protocol label wii change
-                        object[] exitMsgParts = new object[3]{ProtocolLabels.gameAction, sections[1], 
+                        object[] exitMsgParts = new object[3]{ProtocolLabels.clientLeft, sections[1], 
                                                                 playerListLength};
       
                         string exitMsg = MessageMaker.makeMessage(exitMsgParts);
@@ -116,17 +119,25 @@ namespace HD
                         break;
 
                     case ProtocolLabels.roleSelected:
+                        
                         LobbyList.setRolePref(sections[2], System.Int32.Parse(sections[1]));
-                   
                         break;
 
-                    case ProtocolLabels.gameAction:
+                    case ProtocolLabels.clientReady:
+                        
+                        LobbyList.setReadyStatement(sections[2], System.Int32.Parse(sections[1]));
+                        break;
+
+                    case ProtocolLabels.clientLeft:
 
                         int leftClientNo = System.Int32.Parse(sections[1]);
 
                         LobbyList.refreshLobbyList(leftClientNo, System.Int32.Parse(sections[2]));
-                        
+                        break;
 
+                    case ProtocolLabels.gameAction:
+                        UDPChat.instance.gameState = sections[1];
+                        MainSceneEventHandler.startCountDown();
                         break;
 
                     default:      

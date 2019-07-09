@@ -19,7 +19,7 @@ namespace HD
         internal List<TextMeshProUGUI> stateList = new List<TextMeshProUGUI>();
         
         // string values of textList elements
-        private string[] nameArray = new string[4]{"", "", "", ""};
+        internal string[] nameArray = new string[4]{"", "", "", ""};
         
         void Start()
         {
@@ -94,7 +94,6 @@ namespace HD
     
         internal static void setReadyStatement(string value, int stateNo = 0)
         {
-
             if(value == "R")
             {
                 instance.stateList[stateNo].SetText("R");
@@ -109,11 +108,12 @@ namespace HD
 
         internal static void clearLobbyList()
         {
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < instance.nameArray.Length; i++)
             {
-                setPlayerName("", i);
-                setRolePref("", i);
-                setReadyStatement("", i);
+                instance.textList[i].SetText(""); 
+                instance.imageList[i].color = Color.white;
+                instance.stateList[i].SetText("N");
+                instance.stateList[i].color = Color.white;
             }
         }
 
@@ -136,7 +136,7 @@ namespace HD
                 {                              
                     instance.textList[x].SetText(instance.nameArray[x + 1]); 
                     instance.imageList[x].color = instance.imageList[x + 1].color;
-                    instance.stateList[x].SetText("");                             
+                    instance.stateList[x].SetText(instance.stateList[x + 1].text);                             
                 } 
                 
                 // Reset empty playerSections
@@ -147,7 +147,7 @@ namespace HD
                     case 1:
                         instance.textList[3].SetText(""); 
                         instance.imageList[3].color = Color.white;
-                        instance.stateList[3].SetText("");
+                        instance.stateList[3].SetText("N");
 
                         instance.nameArray[3] = "";
                         break;
@@ -155,13 +155,13 @@ namespace HD
                     case 2:
                         instance.textList[2].SetText(""); 
                         instance.imageList[2].color = Color.white;
-                        instance.stateList[2].SetText("");
+                        instance.stateList[2].SetText("N");
 
                         instance.nameArray[2] = "";
 
                         instance.textList[3].SetText(""); 
                         instance.imageList[3].color = Color.white;
-                        instance.stateList[3].SetText("");
+                        instance.stateList[3].SetText("N");
 
                         instance.nameArray[3] = "";
                         break;    

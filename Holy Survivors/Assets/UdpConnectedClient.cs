@@ -45,7 +45,7 @@ namespace HD
         //Message Processes according to messageType      
         ProtocolHandler.Handle(message, ipEndpoint);
         
-        if(UDPChat.instance.isServer)
+        if(UDPChat.instance.isServer && message.Substring(0, 2) != ProtocolLabels.clientLeft)
         {
           UDPChat.BroadcastChatMessage(message, ipEndpoint);
         }
