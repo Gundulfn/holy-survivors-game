@@ -11,8 +11,6 @@ namespace HD
         {         
             string[] sections = message.Split(';');
             string messageType = sections[0];
-            // Was for looking message in runtime
-            MainSceneEventHandler.instance.countDownText.text += message + " ";
             
             if(UDPChat.instance.isServer)
             {
@@ -20,20 +18,36 @@ namespace HD
                 {
                     case ProtocolLabels.joinRequest:
 
+                        if(UDPChat.instance.playerList.ToArray().Length == 4 || 
+                           UDPChat.instance.gameState == "start")
+                        {
+                            object[] rejectMsg = new object[2]{ ProtocolLabels.joinRequest, "rejected"};
+
+                            string rejMsg = MessageMaker.makeMessage(rejectMsg);
+                            UDPChat.instance.connection.Send(rejMsg, ipEndpoint);
+                        }
+                        else
+                        {
+                        // Add player informations to lobby
                         LobbyList.setPlayerName(sections[1]);
 
+                        int newClientNo = UDPChat.instance.playerList.IndexOf(sections[1]);
+                        LobbyList.setReadyStatement("N", newClientNo);
+                        
                         // give info about itself to client to update it
                         // and set its clientInfo
        
                         object[] nameMsg = new object[5]{ ProtocolLabels.clientInfo, 
                                                           UDPChat.instance.username, 
-                                                          UDPChat.instance.playerList.IndexOf(sections[1]),
+                                                          newClientNo,
                                                           UDPChat.instance.roleName,
                                                           UDPChat.instance.readyStatement
                                                           };
 
                         string infoMsg = MessageMaker.makeMessage(nameMsg);
                         UDPChat.instance.connection.Send(infoMsg, ipEndpoint);
+                        }
+                        
                         break; 
 
                     case ProtocolLabels.roleSelected:
@@ -57,6 +71,9 @@ namespace HD
                         
                         UDPChat.RemoveClient(ipEndpoint);
                         
+                        MainSceneEventHandler.stopGame();
+
+                        // send this message to inform other clients
                         object[] exitMsgParts = new object[3]{ProtocolLabels.clientLeft, sections[1], 
                                                                 playerListLength};
       
@@ -73,6 +90,10 @@ namespace HD
             {   
                 switch(messageType)
                 {
+                    case ProtocolLabels.joinRequest:
+                        MainSceneEventHandler.instance.exitButtonFunc();
+                        break;
+
                     case ProtocolLabels.clientInfo:
 
                         if(UDPChat.clientNo == 0)
@@ -86,7 +107,9 @@ namespace HD
                             UDPChat.clientNo = System.Int32.Parse(sections[2]);
                             
                             LobbyList.setPlayerName(UDPChat.instance.username, 
-                                                    UDPChat.clientNo);                  
+                                                    UDPChat.clientNo);  
+
+                            LobbyList.setReadyStatement("N", UDPChat.clientNo);                                         
                             
                             object[] clientMsg = new object[3]{ProtocolLabels.newClient, 
                                                                UDPChat.instance.username,
@@ -131,13 +154,24 @@ namespace HD
                     case ProtocolLabels.clientLeft:
 
                         int leftClientNo = System.Int32.Parse(sections[1]);
-
+                        
                         LobbyList.refreshLobbyList(leftClientNo, System.Int32.Parse(sections[2]));
+                        
+                        MainSceneEventHandler.stopGame(); // To stop countdown
                         break;
 
                     case ProtocolLabels.gameAction:
                         UDPChat.instance.gameState = sections[1];
-                        MainSceneEventHandler.startCountDown();
+                        
+                        if(UDPChat.instance.gameState == "start")
+                        {
+                            MainSceneEventHandler.startGame();
+                        }
+                        else
+                        {
+                            MainSceneEventHandler.stopGame();
+                        }
+                        
                         break;
 
                     default:      

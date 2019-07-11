@@ -46,6 +46,7 @@ namespace HD
         connection = new UdpConnectedClient();
 
         LobbyList.setPlayerName(username);
+        LobbyList.setReadyStatement("N");
       }
       else
       {
@@ -108,13 +109,16 @@ namespace HD
     }
     
     internal void clientDisconnected(){
-      object[] exitMsgParts = new object[2]{ProtocolLabels.clientLeft, clientNo};
+      if(clientNo != 0)
+      {
+        object[] exitMsgParts = new object[2]{ProtocolLabels.clientLeft, clientNo};
       
-      string exitMsg = MessageMaker.makeMessage(exitMsgParts);
+        string exitMsg = MessageMaker.makeMessage(exitMsgParts);
 
-      instance.connection.Send(exitMsg, new IPEndPoint(instance.serverIp, Globals.port));
+        instance.connection.Send(exitMsg, new IPEndPoint(instance.serverIp, Globals.port));
 
-      clientNo = 0;
+        clientNo = 0;
+      }
     }
 
   }

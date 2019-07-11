@@ -42,6 +42,9 @@ namespace HD
             lobbyUI = gameObject.transform.GetChild(1).gameObject;
         }
 
+        // To control coroutine in Update
+        private bool countDownStarted = false;
+
         void Update()
         {
             // Checking UDP gameObject activity to set UI
@@ -59,6 +62,18 @@ namespace HD
                     lobbyUI.SetActive(true);
                     mainUI.SetActive(false);
                 }
+
+                // Start or stop game depending on gameState
+                
+                if(UDPChat.instance.gameState == "start" && !countDownStarted)
+                {
+                    StartCoroutine(startCountDown());
+                    countDownStarted = true;
+                }
+                else if(UDPChat.instance.gameState == "stop" && countDownStarted)
+                {
+                    countDownStarted = false;
+                }
             }
         }
 
@@ -66,28 +81,30 @@ namespace HD
         private static string message = "Game starts in ";
         private static int second;
 
-        internal static IEnumerator startCountDown()
+        private IEnumerator startCountDown()
         {
             for(second = 15; second > 0; second--)
             {
                 if(UDPChat.instance.gameState != "stop")
                 {
+                    instance.countDownText.gameObject.SetActive(true);
                     instance.countDownText.SetText( message + second.ToString() );
                     yield return new WaitForSeconds(1);
                 }
                 else
                 {
                     instance.countDownText.SetText("");
+                    instance.countDownText.gameObject.SetActive(false);
                     second = 15;
                     break;
                 }
-            }
 
-            if(second == 1)
-            {
-                SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
-            }
-            
+                // Load "GameScene" when countdown ends
+                if(second == 1)
+                {
+                    SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
+                }                
+            }            
         }
 
         // OnClick Functions
@@ -132,8 +149,10 @@ namespace HD
             // Set UI elements to show Main Menu
             LobbyList.clearLobbyList();
             
-            // Set "Lock Button" default state
+            // Set everything default state
             UDPChat.instance.readyStatement = "N";
+            stopGame();
+
             roleButtonSection.SetActive(true);
             lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Lock";
 
@@ -148,18 +167,8 @@ namespace HD
             if(instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text == "Start")
             {
                 // check stateList if there is a unready player
-
-                string[] checkReadyList = new string[UDPChat.instance.playerList.ToArray().Length];
-
-                for(int i = 0; i < checkReadyList.Length; i++)
-                {
-                    checkReadyList[i] = LobbyList.instance.stateList[i].text;
-                }
                 
-                if(!checkReadyList.Contains("N"))
-                {
-                    startGame();
-                }
+                LobbyList.instance.checkList();
 
             }
             else
@@ -168,35 +177,39 @@ namespace HD
             }
         }
 
-        private void startGame()
+        //// startGame() and stopGame() are also used in ProtocolHandler
+        internal static void startGame()
         {
-            instance.countDownText.gameObject.SetActive(true);
+            if(UDPChat.instance.isServer)
+            {
+                instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Stop";
+            
+                object[] gameMsg = new object[2]{ProtocolLabels.gameAction, "start"};
 
-            instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Stop";
+                string msg = MessageMaker.makeMessage(gameMsg);
+                
+                UDPChat.instance.Send(msg);
+            }
+            
             
             UDPChat.instance.gameState = "start";
-            StartCoroutine(startCountDown());
-
-            object[] gameMsg = new object[2]{ProtocolLabels.gameAction, "start"};
-
-            string msg = MessageMaker.makeMessage(gameMsg);
-            
-            UDPChat.instance.Send(msg);
         }
        
-        private void stopGame()
-        {
-            instance.countDownText.gameObject.SetActive(false);
+        internal static void stopGame()
+        {         
+            if(UDPChat.instance.isServer)
+            {
+                instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Start";
+                
+                object[] gameMsg = new object[2]{ ProtocolLabels.gameAction, "stop"};
+
+                string msg = MessageMaker.makeMessage(gameMsg);
+                
+                UDPChat.instance.Send(msg);
+            }   
             
-            instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Start";
 
             UDPChat.instance.gameState = "stop";
-
-            object[] gameMsg = new object[2]{ ProtocolLabels.gameAction, "stop"};
-
-            string msg = MessageMaker.makeMessage(gameMsg);
-            
-            UDPChat.instance.Send(msg);
         }
 
         //// Role Buttons Function
@@ -241,7 +254,7 @@ namespace HD
             }
         }
 
-        private void lockPref()
+        internal void lockPref()
         {
             UDPChat.instance.readyStatement = "R"; // "R" means "Ready"
             LobbyList.setReadyStatement("R", UDPChat.clientNo);
@@ -261,7 +274,7 @@ namespace HD
             lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Unlock";
         }
 
-        private void unlockPref()
+        internal void unlockPref()
         {
             UDPChat.instance.readyStatement = "N"; // "N" means "Not Ready"
             LobbyList.setReadyStatement("N", UDPChat.clientNo);

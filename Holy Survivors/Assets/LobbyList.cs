@@ -21,6 +21,10 @@ namespace HD
         // string values of textList elements
         internal string[] nameArray = new string[4]{"", "", "", ""};
         
+        // check ready list and if all players set canStartGame true
+        internal bool canStartGame = false;
+        internal string[] checkReadyList = new string[4];
+
         void Start()
         {
             instance = this;
@@ -30,6 +34,18 @@ namespace HD
                 textList.Add(playerSections[i].playerText);
                 imageList.Add(playerSections[i].roleImage);
                 stateList.Add(playerSections[i].stateText);
+            }
+        }
+
+        internal void checkList()
+        {
+            if(!checkReadyList.Contains("N"))
+            {
+                MainSceneEventHandler.startGame();
+            }
+            else
+            {
+                // Do nothing
             }
         }
 
@@ -99,11 +115,17 @@ namespace HD
                 instance.stateList[stateNo].SetText("R");
                 instance.stateList[stateNo].color = Color.green;
             }
-            else
+            else if(value == "N")
             {
                 instance.stateList[stateNo].SetText("N");
                 instance.stateList[stateNo].color = Color.white;
+            }
+            else
+            {
+                instance.stateList[stateNo].SetText("");
             } 
+
+            instance.checkReadyList[stateNo] = value;
         }
 
         internal static void clearLobbyList()
@@ -112,8 +134,9 @@ namespace HD
             {
                 instance.textList[i].SetText(""); 
                 instance.imageList[i].color = Color.white;
-                instance.stateList[i].SetText("N");
-                instance.stateList[i].color = Color.white;
+                instance.stateList[i].SetText("");
+
+                instance.checkReadyList[i] = "";
             }
         }
 
@@ -136,7 +159,8 @@ namespace HD
                 {                              
                     instance.textList[x].SetText(instance.nameArray[x + 1]); 
                     instance.imageList[x].color = instance.imageList[x + 1].color;
-                    instance.stateList[x].SetText(instance.stateList[x + 1].text);                             
+                     
+                    setReadyStatement(instance.checkReadyList[ x+1 ], x);                           
                 } 
                 
                 // Reset empty playerSections
@@ -147,23 +171,27 @@ namespace HD
                     case 1:
                         instance.textList[3].SetText(""); 
                         instance.imageList[3].color = Color.white;
-                        instance.stateList[3].SetText("N");
+                        instance.stateList[3].SetText("");
 
                         instance.nameArray[3] = "";
+                        instance.checkReadyList[3] = "";   
                         break;
                         
                     case 2:
                         instance.textList[2].SetText(""); 
                         instance.imageList[2].color = Color.white;
-                        instance.stateList[2].SetText("N");
+                        instance.stateList[2].SetText("");
 
                         instance.nameArray[2] = "";
+                        instance.checkReadyList[2] = "";   
 
                         instance.textList[3].SetText(""); 
                         instance.imageList[3].color = Color.white;
-                        instance.stateList[3].SetText("N");
+                        instance.stateList[3].SetText("");
 
                         instance.nameArray[3] = "";
+                        instance.checkReadyList[3] = "";   
+
                         break;    
                 }
             }  
