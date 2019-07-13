@@ -90,7 +90,8 @@ namespace HD
             {   
                 switch(messageType)
                 {
-                    case ProtocolLabels.joinRequest:
+                    case ProtocolLabels.joinRequest:    
+                        //means you cannot join lobby, set UI normal
                         MainSceneEventHandler.instance.exitButtonFunc();
                         break;
 

@@ -22,7 +22,6 @@ namespace HD
         internal string[] nameArray = new string[4]{"", "", "", ""};
         
         // check ready list and if all players set canStartGame true
-        internal bool canStartGame = false;
         internal string[] checkReadyList = new string[4];
 
         void Start()

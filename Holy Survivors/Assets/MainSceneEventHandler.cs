@@ -83,7 +83,7 @@ namespace HD
 
         private IEnumerator startCountDown()
         {
-            for(second = 15; second > 0; second--)
+            for(second = 5; second > 0; second--)
             {
                 if(UDPChat.instance.gameState != "stop")
                 {
@@ -95,13 +95,14 @@ namespace HD
                 {
                     instance.countDownText.SetText("");
                     instance.countDownText.gameObject.SetActive(false);
-                    second = 15;
+                    second = 5;
                     break;
                 }
 
                 // Load "GameScene" when countdown ends
                 if(second == 1)
                 {
+                    DontDestroyOnLoad(udp);
                     SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
                 }                
             }            
