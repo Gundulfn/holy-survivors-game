@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
-using System.Linq;
 
 namespace HD 
 {
@@ -20,25 +21,30 @@ namespace HD
         
         // string values of textList elements
         internal string[] nameArray = new string[4]{"", "", "", ""};
-        
-        // check ready list and if all players set canStartGame true
-        internal string[] checkReadyList = new string[4];
+        // string values of players' rolenames
+        internal string[] roleArray = new string[4]{"", "", "", ""};
+        // ready array to check if all players set canStartGame true with "checkList" function
+        internal string[] readyArray = new string[4];
 
         void Start()
         {
             instance = this;
-
+   
             for(int i = 0; i < playerSections.Length; i++)
             {
                 textList.Add(playerSections[i].playerText);
                 imageList.Add(playerSections[i].roleImage);
-                stateList.Add(playerSections[i].stateText);
+                
+                if(SceneManager.GetActiveScene().name == "MainScene")
+                {
+                    stateList.Add(playerSections[i].stateText);
+                }
             }
         }
 
         internal void checkList()
         {
-            if(!checkReadyList.Contains("N"))
+            if(!readyArray.Contains("N"))
             {
                 MainSceneEventHandler.startGame();
             }
@@ -54,7 +60,7 @@ namespace HD
 
             switch(value)
             {
-                case "hunter":
+                case "musketeer":
                     roleImageColor = Color.yellow;
                     break;
 
@@ -62,12 +68,12 @@ namespace HD
                     roleImageColor = Color.red;
                     break;
 
-                case "builder":
+                case "pirate":
                     roleImageColor = Color.gray;
                     break;
 
-                case "doctor":
-                    roleImageColor = Color.green;
+                case "royalGuard":
+                    roleImageColor = Color.blue;
                     break;
                 
                 default:
@@ -75,34 +81,57 @@ namespace HD
                     break; 
             }
 
+            if(!instance.playerSections[imgNo].gameObject.activeSelf)
+            {
+                instance.playerSections[imgNo].gameObject.SetActive(true);
+            }
+
+            instance.roleArray[imgNo] = value;
             instance.imageList[imgNo].color = roleImageColor;
         }
     
         internal static void setPlayerName(string value, int textNo = 0)
-        {            
+        {   
+            if(!instance.playerSections[textNo].gameObject.activeSelf)
+            {
+                instance.playerSections[textNo].gameObject.SetActive(true);
+            }
+
             if(UDPChat.instance.isServer)
             {
                 if(value == "")
                 {
-                    UDPChat.instance.playerList.RemoveAt(textNo);
+                    if(SceneManager.GetActiveScene().name == "MainScene")
+                    {
+                        UDPChat.instance.playerList.RemoveAt(textNo);
+                        instance.nameArray[textNo] = value;
+                    }
+
                     instance.textList[textNo].SetText(value);
-                    
-                    instance.nameArray[textNo] = value;
                 }
                 else
                 {
-                    UDPChat.instance.playerList.Add(value);
-                    int x = UDPChat.instance.playerList.IndexOf(value);                   
-                    instance.textList[x].SetText(value); 
-
-                    instance.nameArray[x] = value;   
+                    if(SceneManager.GetActiveScene().name == "MainScene")
+                    {
+                        UDPChat.instance.playerList.Add(value);
+                        int x = UDPChat.instance.playerList.IndexOf(value);         
+                        instance.nameArray[x] = value;
+                        instance.textList[x].SetText(value);
+                    }
+                    else
+                    {
+                        instance.textList[textNo].SetText(value);
+                    }     
                 }         
             }
             else
             {
+                if(SceneManager.GetActiveScene().name == "MainScene")
+                {
+                    instance.nameArray[textNo] = value;
+                }
+                
                 instance.textList[textNo].SetText(value);
-
-                instance.nameArray[textNo] = value;
             }
  
         }
@@ -124,18 +153,24 @@ namespace HD
                 instance.stateList[stateNo].SetText("");
             } 
 
-            instance.checkReadyList[stateNo] = value;
+            instance.readyArray[stateNo] = value;
         }
 
         internal static void clearLobbyList()
         {
             for(int i = 0; i < instance.nameArray.Length; i++)
             {
+                if(SceneManager.GetActiveScene().name == "MainScene")
+                {
+                    instance.stateList[i].SetText("");    
+                }
+
                 instance.textList[i].SetText(""); 
                 instance.imageList[i].color = Color.white;
-                instance.stateList[i].SetText("");
 
-                instance.checkReadyList[i] = "";
+                instance.readyArray[i] = "";
+                instance.roleArray[i] = "";
+                instance.nameArray[i] = "";
             }
         }
 
@@ -143,7 +178,11 @@ namespace HD
         {
             setPlayerName("", leftClientNo);
             setRolePref("", leftClientNo);
-            setReadyStatement("", leftClientNo);
+
+            if(SceneManager.GetActiveScene().name == "MainScene")
+            {
+                setReadyStatement("", leftClientNo);
+            }
 
             if(leftClientNo + 1 == playerListLength)
             {
@@ -158,42 +197,83 @@ namespace HD
                 {                              
                     instance.textList[x].SetText(instance.nameArray[x + 1]); 
                     instance.imageList[x].color = instance.imageList[x + 1].color;
-                     
-                    setReadyStatement(instance.checkReadyList[ x+1 ], x);                           
+                    
+                    if(SceneManager.GetActiveScene().name == "MainScene")
+                    {
+                        setReadyStatement(instance.readyArray[x + 1], x);   
+                    }                           
                 } 
                 
                 // Reset empty playerSections
-                int emptyCount = 4 -  (playerListLength - 1);
+                int emptyCount = 4 - (playerListLength - 1);
 
                 switch(emptyCount)
                 {
                     case 1:
                         instance.textList[3].SetText(""); 
-                        instance.imageList[3].color = Color.white;
-                        instance.stateList[3].SetText("");
+                        instance.imageList[3].color = Color.white;  
 
-                        instance.nameArray[3] = "";
-                        instance.checkReadyList[3] = "";   
+                        if(SceneManager.GetActiveScene().name == "MainScene")
+                        {
+                            instance.stateList[3].SetText("");
+                            
+                            instance.nameArray[3] = "";
+                            instance.roleArray[3] = "";
+                            instance.readyArray[3] = ""; 
+                        }
+
                         break;
                         
                     case 2:
                         instance.textList[2].SetText(""); 
-                        instance.imageList[2].color = Color.white;
-                        instance.stateList[2].SetText("");
-
-                        instance.nameArray[2] = "";
-                        instance.checkReadyList[2] = "";   
+                        instance.imageList[2].color = Color.white;   
 
                         instance.textList[3].SetText(""); 
                         instance.imageList[3].color = Color.white;
-                        instance.stateList[3].SetText("");
+                        
+                        if(SceneManager.GetActiveScene().name == "MainScene")
+                        {
+                            instance.stateList[2].SetText("");
+                            instance.stateList[3].SetText("");
 
-                        instance.nameArray[3] = "";
-                        instance.checkReadyList[3] = "";   
+                            instance.nameArray[2] = "";
+                            instance.roleArray[2] = "";
+                            instance.readyArray[2] = "";
+                            
+                            instance.nameArray[3] = "";
+                            instance.roleArray[3] = "";
+                            instance.readyArray[3] = "";
+                        }
 
                         break;    
                 }
             }  
+        }
+
+        // When game starts to load GameScene, add rolenames to UDPChat.instance.playerList with usernames
+        internal static void addRolesToPlayerList()
+        {
+            for(int i = 0; i < instance.nameArray.Length; i++)
+            {
+                if(instance.nameArray[i] != "")
+                {
+                    if(UDPChat.instance.isServer)
+                    {
+                        UDPChat.instance.playerList.Insert(i, instance.nameArray[i] + ";" + 
+                                                              instance.roleArray[i]);
+                        
+                    }
+                    else
+                    {
+                        UDPChat.instance.playerList.Add(instance.nameArray[i] + ";" + 
+                                                        instance.roleArray[i]);
+                    }
+                }
+                else
+                {
+                    // Do nothing
+                }
+            }
         }
     }
 }

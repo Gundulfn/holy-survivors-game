@@ -11,7 +11,8 @@ namespace HD
         {         
             string[] sections = message.Split(';');
             string messageType = sections[0];
-            
+            Debug.Log("Handler: " + message);
+
             if(UDPChat.instance.isServer)
             {
                 switch(messageType)
@@ -81,6 +82,21 @@ namespace HD
 
                         UDPChat.instance.Send(exitMsg);
                         break;
+                   
+                    case ProtocolLabels.playerMove:
+                        float[] coordinates = new float[3]{float.Parse(sections[2]),
+                                                           float.Parse(sections[3]),
+                                                           float.Parse(sections[4])};
+                                                           
+                        GameSceneEventHandler.movePlayerObj(System.Int32.Parse(sections[1]), coordinates);
+                        break;
+                    
+                    case ProtocolLabels.playerRot:
+
+                        GameSceneEventHandler.rotatePlayerObj(System.Int32.Parse(sections[1]),
+                                                              float.Parse(sections[2]),
+                                                              float.Parse(sections[3]));
+                        break;
 
                     default:
                         break;  
@@ -91,7 +107,7 @@ namespace HD
                 switch(messageType)
                 {
                     case ProtocolLabels.joinRequest:    
-                        //means you cannot join lobby, set UI normal
+                        // means you cannot join lobby, set UI normal
                         MainSceneEventHandler.instance.exitButtonFunc();
                         break;
 
@@ -173,6 +189,22 @@ namespace HD
                             MainSceneEventHandler.stopGame();
                         }
                         
+                        break;
+
+                    case ProtocolLabels.playerMove:
+                        float[] coordinates = new float[3]{float.Parse(sections[2]),
+                                                           float.Parse(sections[3]),
+                                                           float.Parse(sections[4])};
+                                                           
+                        GameSceneEventHandler.movePlayerObj(System.Int32.Parse(sections[1]), coordinates);
+                        
+                        break;
+
+                    case ProtocolLabels.playerRot:
+
+                        GameSceneEventHandler.rotatePlayerObj(System.Int32.Parse(sections[1]),
+                                                              float.Parse(sections[2]),
+                                                              float.Parse(sections[3]));
                         break;
 
                     default:      

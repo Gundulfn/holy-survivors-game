@@ -46,7 +46,9 @@ namespace HD
         ProtocolHandler.Handle(message, ipEndpoint);
         
         if(UDPChat.instance.isServer && message.Substring(0, 2) != ProtocolLabels.clientLeft
-                                     && message.Substring(0, 2) != ProtocolLabels.joinRequest)
+                                     && message.Substring(0, 2) != ProtocolLabels.joinRequest
+                                     && message.Substring(0, 2) != ProtocolLabels.playerMove
+                                     && message.Substring(0, 2) != ProtocolLabels.playerRot)
         {
           UDPChat.BroadcastChatMessage(message, ipEndpoint);
         }

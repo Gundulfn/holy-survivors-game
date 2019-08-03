@@ -265,7 +265,7 @@ GameObject:
   - component: {fileID: 66168108}
   - component: {fileID: 66168107}
   m_Layer: 5
-  m_Name: BuilderRole Button
+  m_Name: PirateRole Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +342,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: builder
+          m_StringArgument: pirate
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -397,7 +397,7 @@ GameObject:
   - component: {fileID: 183202217}
   - component: {fileID: 183202216}
   m_Layer: 5
-  m_Name: DoctorRole Button
+  m_Name: RoyalGuardRole Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -474,7 +474,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: doctor
+          m_StringArgument: royalGuard
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -492,7 +492,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3216002, g: 0.9339623, b: 0.3730273, a: 1}
+  m_Color: {r: 0.21586865, g: 0.9339623, b: 0.9121139, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -914,7 +914,7 @@ GameObject:
   - component: {fileID: 471202770}
   - component: {fileID: 471202769}
   m_Layer: 5
-  m_Name: HunterRole Button
+  m_Name: MusketeerRole Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -991,7 +991,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: hunter
+          m_StringArgument: musketeer
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -1256,7 +1256,7 @@ GameObject:
   - component: {fileID: 971956032}
   - component: {fileID: 971956031}
   m_Layer: 5
-  m_Name: DoctorRole Text
+  m_Name: RoyalGuardRole Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1314,7 +1314,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Doctor
+  m_Text: Royal Guard
 --- !u!222 &971956032
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2819,7 +2819,7 @@ GameObject:
   - component: {fileID: 1960764148}
   - component: {fileID: 1960764147}
   m_Layer: 5
-  m_Name: HunterRole Text
+  m_Name: MusketeerRole Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2877,7 +2877,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Hunter
+  m_Text: 'Musketeer
+
+'
 --- !u!222 &1960764148
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3016,7 +3018,7 @@ GameObject:
   - component: {fileID: 2018399621}
   - component: {fileID: 2018399620}
   m_Layer: 5
-  m_Name: BuilderRole Text
+  m_Name: PirateRole Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3074,7 +3076,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Builder
+  m_Text: Pirate
 --- !u!222 &2018399621
 CanvasRenderer:
   m_ObjectHideFlags: 0

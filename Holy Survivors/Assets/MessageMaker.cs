@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MessageMaker
 {
-    public static string makeMessage(object[] sections){        
+    public static string makeMessage(object[] sections){    
         return string.Join(";", sections);;
     }
 }

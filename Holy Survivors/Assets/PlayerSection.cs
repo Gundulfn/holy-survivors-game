@@ -9,5 +9,4 @@ public class PlayerSection : MonoBehaviour
     public RawImage roleImage;
     public TextMeshProUGUI playerText;
     public TextMeshProUGUI stateText;
-
 }

@@ -14,7 +14,6 @@ namespace HD
     // Script references
     public static UDPChat instance;
     public UdpConnectedClient connection;
-
     // UDP statement
     public IPAddress serverIp;
     public bool isServer;
@@ -34,7 +33,7 @@ namespace HD
     
     // Username Settings
     internal string username;
-
+    
     public void Awake()
     {
       instance = this;

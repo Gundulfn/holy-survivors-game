@@ -83,7 +83,7 @@ namespace HD
 
         private IEnumerator startCountDown()
         {
-            for(second = 5; second > 0; second--)
+            for(second = 2; second > 0; second--)
             {
                 if(UDPChat.instance.gameState != "stop")
                 {
@@ -102,6 +102,7 @@ namespace HD
                 // Load "GameScene" when countdown ends
                 if(second == 1)
                 {
+                    LobbyList.addRolesToPlayerList();
                     DontDestroyOnLoad(udp);
                     SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
                 }                
@@ -192,7 +193,6 @@ namespace HD
                 UDPChat.instance.Send(msg);
             }
             
-            
             UDPChat.instance.gameState = "start";
         }
        
@@ -207,8 +207,7 @@ namespace HD
                 string msg = MessageMaker.makeMessage(gameMsg);
                 
                 UDPChat.instance.Send(msg);
-            }   
-            
+            }  
 
             UDPChat.instance.gameState = "stop";
         }
@@ -259,8 +258,6 @@ namespace HD
         {
             UDPChat.instance.readyStatement = "R"; // "R" means "Ready"
             LobbyList.setReadyStatement("R", UDPChat.clientNo);
-            
-            
             
             object[] readyInfo = new object[3]{ProtocolLabels.clientReady, 
                                               UDPChat.clientNo, 
