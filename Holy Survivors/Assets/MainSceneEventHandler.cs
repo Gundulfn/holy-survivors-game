@@ -15,10 +15,10 @@ namespace HD
         // Existed UDP Gameobject and Prefab
         public GameObject udp;
         public GameObject udpPrefab;
-        
+
         // For static calls
         public static MainSceneEventHandler instance;
-        
+
         // Main UI Elements
         private GameObject mainUI;
         private GameObject lobbyUI;
@@ -48,9 +48,9 @@ namespace HD
         void Update()
         {
             // Checking UDP gameObject activity to set UI
-            if(udp.activeSelf)
+            if (udp.activeSelf)
             {
-                if(UDPChat.instance.connectionFailed)
+                if (UDPChat.instance.connectionFailed)
                 {
                     lobbyUI.SetActive(false);
                     mainUI.SetActive(true);
@@ -64,13 +64,13 @@ namespace HD
                 }
 
                 // Start or stop game depending on gameState
-                
-                if(UDPChat.instance.gameState == "start" && !countDownStarted)
+
+                if (UDPChat.instance.gameState == "start" && !countDownStarted)
                 {
                     StartCoroutine(startCountDown());
                     countDownStarted = true;
                 }
-                else if(UDPChat.instance.gameState == "stop" && countDownStarted)
+                else if (UDPChat.instance.gameState == "stop" && countDownStarted)
                 {
                     countDownStarted = false;
                 }
@@ -83,12 +83,12 @@ namespace HD
 
         private IEnumerator startCountDown()
         {
-            for(second = 2; second > 0; second--)
+            for (second = 2; second > 0; second--)
             {
-                if(UDPChat.instance.gameState != "stop")
+                if (UDPChat.instance.gameState != "stop")
                 {
                     instance.countDownText.gameObject.SetActive(true);
-                    instance.countDownText.SetText( message + second.ToString() );
+                    instance.countDownText.SetText(message + second.ToString());
                     yield return new WaitForSeconds(1);
                 }
                 else
@@ -100,13 +100,13 @@ namespace HD
                 }
 
                 // Load "GameScene" when countdown ends
-                if(second == 1)
+                if (second == 1)
                 {
                     LobbyList.addRolesToPlayerList();
                     DontDestroyOnLoad(udp);
                     SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
-                }                
-            }            
+                }
+            }
         }
 
         // OnClick Functions
@@ -115,7 +115,8 @@ namespace HD
             ipText = ipInput.text;
             username = usernameInput.text;
 
-            if(checkUserName(username)){
+            if (checkUserName(username))
+            {
                 Globals.isServer = false;
 
                 IPAddress ip = IPAddress.Parse(ipText);
@@ -128,29 +129,30 @@ namespace HD
         {
             username = usernameInput.text;
 
-            if(checkUserName(username)){
+            if (checkUserName(username))
+            {
                 Globals.isServer = true;
                 udp.SetActive(true);
                 UDPChat.instance.connectionFailed = false;
-                
+
                 startButton.SetActive(true);
-            }     
+            }
         }
-        
+
         public void exitButtonFunc()
         {
             // Set UDP settings as default
-            if(!UDPChat.instance.isServer)
+            if (!UDPChat.instance.isServer)
             {
                 UDPChat.instance.clientDisconnected();
             }
 
             UDPChat.instance.connection.Close();
             resetUDP();
-            
+
             // Set UI elements to show Main Menu
             LobbyList.clearLobbyList();
-            
+
             // Set everything default state
             UDPChat.instance.readyStatement = "N";
             stopGame();
@@ -162,19 +164,19 @@ namespace HD
             startButton.SetActive(false);
             mainUI.SetActive(true);
         }
-        
+
         //// Start Button Functions
         public void startButtonFunc()
         {
-            if(instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text == "Start")
+            if (instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text == "Start")
             {
                 // check stateList if there is a unready player
-                
+
                 LobbyList.instance.checkList();
 
             }
             else
-            {   
+            {
                 stopGame();
             }
         }
@@ -182,32 +184,32 @@ namespace HD
         //// startGame() and stopGame() are also used in ProtocolHandler
         internal static void startGame()
         {
-            if(UDPChat.instance.isServer)
+            if (UDPChat.instance.isServer)
             {
                 instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Stop";
-            
-                object[] gameMsg = new object[2]{ProtocolLabels.gameAction, "start"};
+
+                object[] gameMsg = new object[2] { ProtocolLabels.gameAction, "start" };
 
                 string msg = MessageMaker.makeMessage(gameMsg);
-                
+
                 UDPChat.instance.Send(msg);
             }
-            
+
             UDPChat.instance.gameState = "start";
         }
-       
+
         internal static void stopGame()
-        {         
-            if(UDPChat.instance.isServer)
+        {
+            if (UDPChat.instance.isServer)
             {
                 instance.startButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Start";
-                
-                object[] gameMsg = new object[2]{ ProtocolLabels.gameAction, "stop"};
+
+                object[] gameMsg = new object[2] { ProtocolLabels.gameAction, "stop" };
 
                 string msg = MessageMaker.makeMessage(gameMsg);
-                
+
                 UDPChat.instance.Send(msg);
-            }  
+            }
 
             UDPChat.instance.gameState = "stop";
         }
@@ -215,16 +217,16 @@ namespace HD
         //// Role Buttons Function
         public void roleButtonFunc(string roleName)
         {
-            object[] roleInfo = new object[3]{ ProtocolLabels.roleSelected, 
-                                               UDPChat.clientNo, 
+            object[] roleInfo = new object[3]{ ProtocolLabels.roleSelected,
+                                               UDPChat.clientNo,
                                                roleName
                                              };
 
             string msg = MessageMaker.makeMessage(roleInfo);
-            
+
             UDPChat.instance.roleName = roleName;
 
-            if(UDPChat.instance.isServer)
+            if (UDPChat.instance.isServer)
             {
                 // Server must set roleName to lobby list by itself    
                 LobbyList.setRolePref(roleName);
@@ -237,18 +239,18 @@ namespace HD
                                             new IPEndPoint(UDPChat.instance.serverIp, Globals.port));
             }
         }
-        
+
         //// Lock button settings        
         public void lockButtonFunc()
         {
             string buttonName = lockButton.transform.GetChild(0).gameObject.GetComponent<Text>().text;
-            
+
             //Set lock button's function according to its name
-            if(buttonName == "Lock" && LobbyList.instance.imageList[UDPChat.clientNo].color != Color.white)
+            if (buttonName == "Lock" && LobbyList.instance.imageList[UDPChat.clientNo].color != Color.white)
             {
                 lockPref();
             }
-            else if(buttonName == "Unlock" && !countDownText.gameObject.activeSelf) // add later 
+            else if (buttonName == "Unlock" && !countDownText.gameObject.activeSelf) // add later 
             {
                 unlockPref();
             }
@@ -258,11 +260,11 @@ namespace HD
         {
             UDPChat.instance.readyStatement = "R"; // "R" means "Ready"
             LobbyList.setReadyStatement("R", UDPChat.clientNo);
-            
-            object[] readyInfo = new object[3]{ProtocolLabels.clientReady, 
-                                              UDPChat.clientNo, 
+
+            object[] readyInfo = new object[3]{ProtocolLabels.clientReady,
+                                              UDPChat.clientNo,
                                               "R"};
-        
+
             string readyMsg = MessageMaker.makeMessage(readyInfo);
 
             UDPChat.instance.Send(readyMsg);
@@ -274,13 +276,15 @@ namespace HD
 
         internal void unlockPref()
         {
-            UDPChat.instance.readyStatement = "N"; // "N" means "Not Ready"
-            LobbyList.setReadyStatement("N", UDPChat.clientNo);
+            const string NOT_READY = "N";
 
-            object[] unreadyInfo = new object[3]{ProtocolLabels.clientReady, 
-                                                 UDPChat.clientNo, 
-                                                 "N"};
-        
+            UDPChat.instance.readyStatement = NOT_READY;
+            LobbyList.setReadyStatement(NOT_READY, UDPChat.clientNo);
+
+            object[] unreadyInfo = new object[3]{ProtocolLabels.clientReady,
+                                                 UDPChat.clientNo,
+                                                 NOT_READY};
+
             string unreadyMsg = MessageMaker.makeMessage(unreadyInfo);
 
             UDPChat.instance.Send(unreadyMsg);
@@ -291,28 +295,15 @@ namespace HD
         }
 
         // Common Functions in this script 
-        
-        //// To check username if it is approative or not
-        //// Username cannot be space like " "   
-        private bool isUsernameApproative;
 
+        // To check username if it is approative or not
+        // @param username cannot start or end with space character   
         private bool checkUserName(string username)
         {
-            int nameLength = username.Length;
-
-            for(int i = 0; i < nameLength; i++)
-            {
-                if(username[i] == ' ')
-                {
-                    isUsernameApproative = false;
-                }
-                else
-                {
-                    isUsernameApproative = true;
-                }
-            }
-
-            return isUsernameApproative;
+            return
+                username.Length != 0 &&
+                !username.StartsWith(" ") &&
+                !username.EndsWith(" ");
         }
 
         //// set "udp" a new gameobject with "udpPrefab"
@@ -322,5 +313,5 @@ namespace HD
             udp = Instantiate(udpPrefab);
             udp.name = "UDP GameObject";
         }
-    }    
+    }
 }
