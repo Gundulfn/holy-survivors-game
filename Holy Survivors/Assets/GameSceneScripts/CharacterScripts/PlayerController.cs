@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour {
 
 		player.StaminaChanges();
 	}
-
+	
 	private void sendPos()
 	{
 		object[] msgParts = new object[5]{HD.ProtocolLabels.playerMove, 

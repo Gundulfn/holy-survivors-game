@@ -5,6 +5,8 @@ using TMPro;
 
 public class GameSceneEventHandler : MonoBehaviour
 {
+    public static GameSceneEventHandler instance;
+
     public GameObject musketeerPrefab;
     public GameObject royalGuardPrefab;
     public GameObject piratePrefab;
@@ -22,7 +24,7 @@ public class GameSceneEventHandler : MonoBehaviour
 
     void Start()
     {
-
+        instance = this;
         // debug = GameObject.Find("yo").GetComponent<TextMeshProUGUI>();
         // Spawn all players' bodies by their rolenames 
         // foreach(string player in HD.UDPChat.instance.playerList)
@@ -34,7 +36,7 @@ public class GameSceneEventHandler : MonoBehaviour
         //     }
         // }
         
-        spawnPlayerGameObj("boss;lumberjack");
+        spawnPlayerGameObj("boss;pirate");
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -91,7 +93,7 @@ public class GameSceneEventHandler : MonoBehaviour
 
             CameraRay camRay = cloneGameObj.transform.GetChild(0).gameObject.AddComponent<CameraRay>();
             camRay.hitItemInfo = hitItemInfo;
-            camRay.mask = 1;
+            camRay.mask = 2;
         }   
         else
         {
@@ -118,15 +120,15 @@ public class GameSceneEventHandler : MonoBehaviour
         switch(index)
         {
             case 0:
-                cloneGameObj.transform.position = new Vector3(0, 0, 0);
+                cloneGameObj.transform.position = new Vector3(0, 1, 0);
                 break;
 
             case 1:
-                cloneGameObj.transform.position = new Vector3(2, 0, 1);
+                cloneGameObj.transform.position = new Vector3(2, 1, 1);
                 break;
 
             case 2:
-                cloneGameObj.transform.position = new Vector3(-2, 0, 3);
+                cloneGameObj.transform.position = new Vector3(-2, 1, 3);
                 break;
 
             case 3:
@@ -153,8 +155,7 @@ public class GameSceneEventHandler : MonoBehaviour
     // Protocol Action Functions
 
     public static void movePlayerObj(int playerNo, float[] coordinates)
-    { 
-
+    {
         Vector3 pos = new Vector3(coordinates[0],
                                   coordinates[1], 
                                   coordinates[2]);

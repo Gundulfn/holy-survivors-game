@@ -12,7 +12,7 @@ public class Bullet : MonoBehaviour
     void Start()
     {
         int itemNo = GetComponent<Ammo>().itemNo;
-        itemId = "a" + itemNo.ToString();
+        itemId = ItemType.ammo + itemNo.ToString();
 
         switch(itemId)
         {
@@ -33,28 +33,32 @@ public class Bullet : MonoBehaviour
     {
         prevPos = transform.position;
 
-        transform.Translate(0, 0, -bulletSpeed * Time.deltaTime);
+        if(itemId == ItemId.musketBall)
+        {
+            transform.Translate(0, 0, bulletSpeed * Time.deltaTime);
+        }
+        else
+        {
+            transform.Translate(0, 0, bulletSpeed * Time.deltaTime);
+        }
 
         Vector3 posDifference = transform.position - prevPos;
-
         RaycastHit[] hits = Physics.RaycastAll(new Ray(prevPos, posDifference.normalized));
 
         for(int i = 0; i < hits.Length; i++)
-        {
-            Debug.Log(hits[i].collider.gameObject.name);
+        {   
 
             if(hits[i].collider.gameObject.GetComponent<Demon>())
             {
-                Demon demonScript = hits[i].collider.gameObject.GetComponent<Demon>();
+                Demon demon = hits[i].collider.gameObject.GetComponent<Demon>();
 
-                demonScript.setHP(demonScript.getHP() - bulletDamage);
-
-                Debug.Log(demonScript.getHP());
-
-                Destroy(gameObject);        
+                demon.setHP(demon.getHP() - bulletDamage);
+                Destroy(gameObject);  
+                break;      
             }
-            else
+            else if(hits[i].collider.gameObject.tag == "environment")
             {
+                Debug.Log(hits[i].collider.gameObject.name);
                 Destroy(gameObject);
             }
         }

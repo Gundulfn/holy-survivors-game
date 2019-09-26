@@ -6,7 +6,8 @@ public class Character: MonoBehaviour
 {
     // Attributes
     private string charName;
-    private int hp = 100;
+    private int defaultHp;
+    private int hp;
     private float moveSpeed;
 	private float attackSpeed;
 	private float reloadSpeed;
@@ -19,11 +20,6 @@ public class Character: MonoBehaviour
 	private float speedSmoothVelocity = 0.2f;
     
     private float[] physicVariables;
-
-    void Start()
-    {
-          
-    }
     
     public Character(){ }
 
@@ -67,6 +63,18 @@ public class Character: MonoBehaviour
     public void setHP(int value)
     {
         hp = value;
+    }
+
+    // hp get and Set 
+    public int getDefaultHP()
+    {
+        return defaultHp;
+    }
+
+    public void setDefaultHP(int value)
+    {
+        defaultHp = value;
+        hp = defaultHp;
     }
 
     // moveSpeed get and Set 

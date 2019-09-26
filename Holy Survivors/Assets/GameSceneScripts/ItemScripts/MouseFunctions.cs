@@ -4,26 +4,37 @@ using UnityEngine;
 
 public class MouseFunctions : MonoBehaviour
 {
+    private static PlayerController playerCont;
     public static GameObject itemObj;
 
     public static void mouseClickActions(string itemId, GameObject funcItemObj)
     {
+        if(playerCont == null)
+        {
+            playerCont = GameSceneEventHandler.instance.localPlayer.GetComponent<PlayerController>();
+        }
+
         itemObj = funcItemObj;
 
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            leftClickFuncs(itemId);
+            if(playerCont.enableControl)
+            {
+                leftClickFuncs(itemId);
+            }    
         }
-        else if(Input.GetMouseButtonDown(1))
+        else if (Input.GetMouseButtonDown(1))
         {
-            rightClickFuncs(itemId);
+            if(playerCont.enableControl)
+            {
+                rightClickFuncs(itemId);
+            }       
         }
-
     }
 
     private static void leftClickFuncs(string itemId)
     {
-        switch(itemId)
+        switch (itemId)
         {
             case ItemId.musket:
                 itemObj.GetComponent<Weapon>().musketLeftFunc();
@@ -33,13 +44,13 @@ public class MouseFunctions : MonoBehaviour
                 break;
             case ItemId.cutlass:
                 itemObj.GetComponent<Weapon>().cutlassLeftFunc();
-                break;    
+                break;
             case ItemId.woodenAxe:
                 itemObj.GetComponent<Weapon>().woodenAxeLeftFunc();
                 break;
             case ItemId.spear:
                 itemObj.GetComponent<Weapon>().spearLeftFunc();
-                break;            
+                break;
             default:
                 break;
         }
@@ -47,7 +58,7 @@ public class MouseFunctions : MonoBehaviour
 
     private static void rightClickFuncs(string itemId)
     {
-        switch(itemId)
+        switch (itemId)
         {
             // Weapon Items
             case ItemId.musket:
@@ -58,7 +69,7 @@ public class MouseFunctions : MonoBehaviour
                 break;
             case ItemId.cutlass:
                 itemObj.GetComponent<Weapon>().cutlassRightFunc();
-                break;    
+                break;
             case ItemId.woodenAxe:
                 itemObj.GetComponent<Weapon>().woodenAxeRightFunc();
                 break;
@@ -72,7 +83,7 @@ public class MouseFunctions : MonoBehaviour
                 break;
             case ItemId.waterBottle:
                 itemObj.GetComponent<Food>().waterBottleFunc();
-                break;    
+                break;
             default:
                 break;
         }

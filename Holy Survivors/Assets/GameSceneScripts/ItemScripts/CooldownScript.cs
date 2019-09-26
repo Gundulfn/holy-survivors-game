@@ -32,6 +32,8 @@ public class CooldownScript
         cooldownRate = 1;    
     }
 
+    // @param weaponMode 0 for ranged 1 for melee mode
+    // @returns float cooldownRate for weapon with weaponMode
     public float getCooldownRate(int weaponMode = 0)
     {
         if(weaponMode == 0)
@@ -40,7 +42,6 @@ public class CooldownScript
         }
         else
         {
-            Debug.Log(player.getAttackSpeed() * swingSpeed);
             return player.getAttackSpeed() * swingSpeed;
         }
 

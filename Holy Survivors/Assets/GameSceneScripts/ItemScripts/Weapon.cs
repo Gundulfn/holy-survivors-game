@@ -7,6 +7,7 @@ public class Weapon : MonoBehaviour
     public int itemNo;
     public Animation anim;
     public Transform bulletSpawn;
+    public ParticleSystem smokeEffect;
     public bool isLoot;
 
     private string itemId;
@@ -21,15 +22,16 @@ public class Weapon : MonoBehaviour
     private CooldownScript cooldownScript;
     private Player localPlayer;
     public bool canUse;
+    public bool isReloadFinished;
     private bool powerAttack;
 
-    private string weaponFilePath = "Prefabs/Weapons/";
+    private string ammoFilePath = "Prefabs/Ammos/";
     private GameObject musketBallPrefab;
     private GameObject pistovBallPrefab;
     
     void Start()
     {
-        itemId = "w" + itemNo.ToString();
+        itemId = ItemType.weapon + itemNo.ToString();
         
         weapon = new Item(itemId);
         
@@ -40,7 +42,10 @@ public class Weapon : MonoBehaviour
             case ItemId.musket:
                 swingSpeed = 0.8f;
                 loadSpeed = 0.4f;
-                baseDamage = 10; // Bayonet Damage
+                
+                // Bayonet Damage
+                baseDamage = 10; 
+                powerAttackDamage = 15;
                 break;
             
             case ItemId.pistov:
@@ -50,27 +55,30 @@ public class Weapon : MonoBehaviour
             case ItemId.woodenAxe:
                 swingSpeed = 1.1f;
                 baseDamage = 13;
-                powerAttackDamage = 22;
+                powerAttackDamage = 25;
+                canUse = true;
                 break; 
 
             case ItemId.spear:
                 swingSpeed = 1.3f;
                 baseDamage = 15;
                 powerAttackDamage = 20;
+                canUse = true;
                 break;
 
             case ItemId.cutlass:
                 swingSpeed = 1.5f;
                 baseDamage = 12;
                 powerAttackDamage = 18;
+                canUse = true;
                 break;
 
             default:
                 break;       
         }
     
-        musketBallPrefab = (GameObject) Resources.Load(weaponFilePath + "MusketBall");
-        pistovBallPrefab = (GameObject) Resources.Load(weaponFilePath + "PistovBall");
+        musketBallPrefab = (GameObject) Resources.Load(ammoFilePath + "Musket Ball");
+        pistovBallPrefab = (GameObject) Resources.Load(ammoFilePath + "Pistov Ball");
     }
 
     void Update()
@@ -83,8 +91,6 @@ public class Weapon : MonoBehaviour
             {
                 localPlayer = GameObject.Find("GameEditor").GetComponent<GameSceneEventHandler>().localPlayer;
                 cooldownScript = new CooldownScript(itemId, localPlayer, swingSpeed, loadSpeed);
-
-                canUse = true;
             }
 
             // Change weaponMode, NOTE: Not all weapons have second mode
@@ -108,11 +114,10 @@ public class Weapon : MonoBehaviour
                 {
                     MouseFunctions.mouseClickActions(itemId, gameObject);
                 }
-
-                // Special Event of Firearms for late reloading
-                if(!canUse)
+                else
                 {
-                    if(zoomed)
+                    // Special Event of Firearms for late reloading
+                    if(zoomed && !anim.isPlaying)
                     {
                         switch(itemId)
                         {
@@ -152,14 +157,18 @@ public class Weapon : MonoBehaviour
                     MouseFunctions.mouseClickActions(itemId, gameObject);
                 }
             }
+        
+            if(isReloadFinished)
+            {
+                isReloadFinished = false;
+                decreaseAmmoStack();
+            }
         }
     }
 
     // For melee attacks
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.name);
-        
         if(other.GetComponent<Demon>())
         {
             if(powerAttack)
@@ -170,8 +179,43 @@ public class Weapon : MonoBehaviour
             {
                 other.GetComponent<Demon>().setHP(other.GetComponent<Demon>().getHP() - baseDamage);
             }
+        }
+    }
 
-            Debug.Log(other.GetComponent<Demon>().getHP());
+    private void decreaseAmmoStack()
+    {
+        Item bulletItem = null;
+        Item gunpowderItem = null;
+
+        switch(itemId)
+        {
+            case ItemId.musket:
+                bulletItem = Inventory.instance.findItemWithItemId(ItemId.musketBall);
+                break;
+
+            case ItemId.pistov:
+                bulletItem = Inventory.instance.findItemWithItemId(ItemId.pistovBall);
+                break;    
+        }
+
+        gunpowderItem = Inventory.instance.findItemWithItemId(ItemId.gunpowder);
+
+        checkStackCount(bulletItem);
+        checkStackCount(gunpowderItem);
+    }
+
+    private void checkStackCount(Item item)
+    {
+        if(item != null)
+        {
+            if(item.getStackCount() == 1)
+            {
+                Inventory.instance.removeItem(item);
+            }
+            else
+            {
+                item.setStackCount( item.getStackCount() - 1);
+            }
         }
     }
 
@@ -180,6 +224,8 @@ public class Weapon : MonoBehaviour
     private string animFilePath = "Animations/Weapon/";
 
     // Musket Mouse Functions and Reload
+    private float bayonetPowerAttackCost = 10;
+
     internal void musketLeftFunc()
     {
         if(weaponMode == 0)
@@ -187,16 +233,18 @@ public class Weapon : MonoBehaviour
             // Fire
             if(!anim.isPlaying)
             {
-                GameObject musketBall = Instantiate(musketBallPrefab, bulletSpawn.position, bulletSpawn.rotation);
+                GameObject musketBall = Instantiate(musketBallPrefab, bulletSpawn.position, bulletSpawn.rotation);   
+                smokeEffect.Play(true);
 
-                canUse = false;
+                anim.clip = (AnimationClip) Resources.Load(animFilePath + "Musket(0)LeftClick");
+                anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
+                anim.Play();
             }
-
-            reloadMusket();
         }
         else
         {
             // Bayonet attack
+            powerAttack = false;
             anim.clip = (AnimationClip) Resources.Load(animFilePath + "Musket(1)LeftClick");
             anim[anim.clip.name].speed = cooldownScript.getCooldownRate(weaponMode);
             anim.Play();
@@ -232,25 +280,52 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            // Do nothing
+            if(localPlayer.getStamina() >= bayonetPowerAttackCost)
+            {
+                powerAttack = true;
+                anim.clip = (AnimationClip) Resources.Load(animFilePath + "Musket(1)RightClick");
+                anim[anim.clip.name].speed = cooldownScript.getCooldownRate(weaponMode);
+                anim.Play(); 
+                localPlayer.setStamina( localPlayer.getStamina() - bayonetPowerAttackCost );
+            }
         } 
     }
 
     private void reloadMusket()
     {
-        anim.clip = (AnimationClip) Resources.Load(animFilePath + "MusketReload");
-        anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
-        anim.Play();
+        Item musketBallItem = Inventory.instance.findItemWithItemId(ItemId.musketBall);
+        Item gunpowderItem = Inventory.instance.findItemWithItemId(ItemId.gunpowder);
+
+        if(musketBallItem != null && gunpowderItem != null)
+        {
+            anim.clip = (AnimationClip) Resources.Load(animFilePath + "MusketReload");
+            anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
+            anim.Play();
+        }
+        else
+        {
+            // For set cock's and trigger's positions used
+            if(anim.clip == null || anim.clip.name != "Musket(0)LeftClick")
+            {
+                anim.clip = (AnimationClip) Resources.Load(animFilePath + "Musket(0)LeftClick");
+                anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
+                anim.Play();
+            } 
+        }
     }
 
     // Pistov Mouse Functions and Reload
     internal void pistovLeftFunc()
     {
-        GameObject pistovBall = Instantiate(pistovBallPrefab, bulletSpawn.position, bulletSpawn.rotation);
+        if(!anim.isPlaying)
+        {
+            GameObject pistovBall = Instantiate(pistovBallPrefab, bulletSpawn.position, bulletSpawn.rotation);
+            smokeEffect.Play(true);
 
-        canUse = false;
-
-        reloadPistov();
+            anim.clip = (AnimationClip) Resources.Load(animFilePath + "PistovLeftClick");
+            anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
+            anim.Play();
+        }
     }
 
     internal void pistovRightFunc()
@@ -275,9 +350,25 @@ public class Weapon : MonoBehaviour
 
     private void reloadPistov()
     {
-        anim.clip = (AnimationClip) Resources.Load(animFilePath + "PistovReload");
-        anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
-        anim.Play();
+        Item pistovBallItem = Inventory.instance.findItemWithItemId(ItemId.pistovBall);
+        Item gunpowderItem = Inventory.instance.findItemWithItemId(ItemId.gunpowder);
+
+        if(pistovBallItem != null && gunpowderItem != null)
+        {
+            anim.clip = (AnimationClip) Resources.Load(animFilePath + "PistovReload");
+            anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
+            anim.Play();
+        }
+        else
+        {
+            // For set cock's and trigger's positions used
+            if(anim.clip == null || anim.clip.name != "PistovLeftClick")
+            {
+                anim.clip = (AnimationClip) Resources.Load(animFilePath + "PistovLeftClick");
+                anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
+                anim.Play();
+            } 
+        }
     }
     
     // Cutlass Mouse Functions
@@ -286,7 +377,7 @@ public class Weapon : MonoBehaviour
     internal void cutlassLeftFunc()
     {
         powerAttack = false;
-        anim.clip = (AnimationClip) Resources.Load(animFilePath + "CutlassRightClick");
+        anim.clip = (AnimationClip) Resources.Load(animFilePath + "CutlassLeftClick");
         anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
         anim.Play(); 
     }
@@ -308,6 +399,7 @@ public class Weapon : MonoBehaviour
 
     internal void woodenAxeLeftFunc()
     {
+        powerAttack = false;
         anim.clip = (AnimationClip) Resources.Load(animFilePath + "AxeLeftClick");
         anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
         anim.Play();
@@ -317,6 +409,7 @@ public class Weapon : MonoBehaviour
     {
         if(localPlayer.getStamina() >= axePowerAttackCost)
         {
+            powerAttack = true;
             anim.clip = (AnimationClip) Resources.Load(animFilePath + "AxeRightClick");
             anim[anim.clip.name].speed = cooldownScript.getCooldownRate();
             anim.Play(); 

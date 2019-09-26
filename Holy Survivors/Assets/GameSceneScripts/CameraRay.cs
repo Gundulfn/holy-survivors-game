@@ -14,7 +14,6 @@ public class CameraRay : MonoBehaviour {
 	
 	private GameObject hitItemInfoObj;
     private GameObject actionTakeTextObj;
-    private GameObject actionConsumeTextObj;
 
 	void Start ()
     {
@@ -22,7 +21,6 @@ public class CameraRay : MonoBehaviour {
 
 		hitItemInfoObj = hitItemInfo.gameObject;
         actionTakeTextObj = hitItemInfo.actionTakeTextObj;
-        actionConsumeTextObj = hitItemInfo.actionConsumeTextObj;
 	}
 
 	void Update () 
@@ -43,9 +41,8 @@ public class CameraRay : MonoBehaviour {
 				{
 					hitItemInfoObj.SetActive(true);
 					actionTakeTextObj.SetActive(true);
-					actionConsumeTextObj.SetActive(false);
 
-					string itemId = "w" + detectedGameObj.GetComponent<Weapon>().itemNo.ToString();
+					string itemId = ItemType.weapon + detectedGameObj.GetComponent<Weapon>().itemNo.ToString();
 					
 					takeItem(detectedGameObj, itemId);
 				}	
@@ -54,12 +51,19 @@ public class CameraRay : MonoBehaviour {
             {			
 				hitItemInfoObj.SetActive(true);
 				actionTakeTextObj.SetActive(true);
-				actionConsumeTextObj.SetActive(true);
 
-				string itemId = "f" + detectedGameObj.GetComponent<Food>().itemNo.ToString();
+				string itemId = ItemType.food + detectedGameObj.GetComponent<Food>().itemNo.ToString();
 				
 				takeItem(detectedGameObj, itemId);
-				consumeItem(detectedGameObj, itemId);
+			}
+			else if(detectedGameObj.GetComponent<Ammo>())
+			{
+				hitItemInfoObj.SetActive(true);
+				actionTakeTextObj.SetActive(true);
+
+				string itemId = ItemType.ammo + detectedGameObj.GetComponent<Ammo>().itemNo.ToString();
+				
+				takeItem(detectedGameObj, itemId);
 			}
             else
             {
@@ -71,7 +75,6 @@ public class CameraRay : MonoBehaviour {
 		{
 			hitItemInfoObj.SetActive(false);
 			actionTakeTextObj.SetActive(false);
-			actionConsumeTextObj.SetActive(false);
 
 			hitItemText.SetText("");
 			Debug.DrawLine (ray.origin, ray.origin + ray.direction * 10, Color.green);
@@ -83,16 +86,13 @@ public class CameraRay : MonoBehaviour {
 	{
 		if(Input.GetKeyDown(KeyCode.E) && Inventory.instance.canTakeItemWithId(itemId))
 		{
-			Inventory.instance.addItem(itemId);
-			Destroy(itemObj);
-		}
-	}
+			if(itemObj.GetComponent<Weapon>())
+			{
+				Debug.Log("CameraRay: " + itemObj.GetComponent<Weapon>().canUse);
+				ItemPrefab.instance.setIsLootWeaponLoaded(itemObj.GetComponent<Weapon>().canUse);
+			}
 
-	private void consumeItem(GameObject itemObj, string itemId)
-	{
-		if(Input.GetKeyDown(KeyCode.Q))
-		{
-			Debug.Log(itemId);
+			Inventory.instance.addItem(itemId);
 			Destroy(itemObj);
 		}
 	}

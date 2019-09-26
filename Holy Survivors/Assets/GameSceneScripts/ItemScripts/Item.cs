@@ -4,60 +4,64 @@ using UnityEngine;
 
 public class Item
 {
-    public int stackCount;
-
+    private int stackCount;
     private string itemName;
     private string itemId;
+    private string itemType;
     private int stackLimit;
 
-    public Item(){  }
+    private int invItemId;
 
     public Item(string itemId)
     {
         setItemId(itemId);
+        setItemName();
+        setItemType();
+        setStackLimit();
+        setStackCount();
     }
 
-    // When itemId is set, it will set "stackLimit" and "itemName"
     private void setItemId(string value)
     {
         itemId = value;
-        
-        setItemName();
-        setStackLimit();
     }
 
     private void setStackLimit()
     {
         string itemType = itemId.Substring(0, 1);
 
-        switch(itemType)
+        if (itemType == ItemType.weapon)
         {
-            case "w":
-                stackLimit = 1;
-                break;
-            case ItemId.bread:
-                stackLimit = 10;
-                break;
-            case ItemId.waterBottle:
-                stackLimit = 8;
-                break;
-            case ItemId.gunpowder:
-                stackLimit = 50;
-                break;    
-            case ItemId.musketBall:
-                stackLimit = 30;
-                break;
-            case ItemId.pistovBall:
-                stackLimit = 50;
-                break;    
-            default:
-                break;
+            stackLimit = 1;
+        }
+        else
+        {
+            switch (itemId)
+            {
+                case ItemId.bread:
+                    stackLimit = 10;
+                    break;
+                case ItemId.waterBottle:
+                    stackLimit = 8;
+                    break;
+                case ItemId.gunpowder:
+                    stackLimit = 50;
+                    break;
+                case ItemId.musketBall:
+                    stackLimit = 30;
+                    break;
+                case ItemId.pistovBall:
+                    stackLimit = 50;
+                    break;
+                default:
+                    break;
+            }
         }
     }
-    
+
     private void setItemName()
     {
-        switch(itemId)
+        switch (itemId)
         {
             case ItemId.musket:
                 itemName = "Musket";
@@ -82,9 +86,9 @@ public class Item
                 break;
             case ItemId.gunpowder:
                 itemName = "Gunpowder";
-                break;    
+                break;
             case ItemId.musketBall:
-                itemName = "Rifle Ball";
+                itemName = "Musket Ball";
                 break;
             case ItemId.pistovBall:
                 itemName = "Pistov Ball";
@@ -94,9 +98,29 @@ public class Item
         }
     }
 
+    private void setItemType()
+    {
+        itemType = itemId.Substring(0, 1);
+    }
+
+    public void setStackCount(int value = 0)
+    {
+        stackCount = value;
+    }
+
+    public void setInvItemId(int value)
+    {
+        invItemId = value;
+    }
+
     public string getItemId()
     {
         return itemId;
+    }
+
+    public int getStackLimit()
+    {
+        return stackLimit;
     }
 
     public string getItemName()
@@ -104,8 +128,18 @@ public class Item
         return itemName;
     }
 
-    public int getStackLimit()
+    public string getItemType()
     {
-        return stackLimit;
+        return itemType;
+    }
+
+    public int getStackCount()
+    {
+        return stackCount;
+    }
+
+    public int getInvItemId()
+    {
+        return invItemId;
     }
 }

@@ -10,6 +10,7 @@ public class Player : Character
 	private string roleName;
 
     // Movement variables
+	private KeyCode[] movementKeys = new KeyCode[4]{KeyCode.W, KeyCode.A, KeyCode.S, KeyCode.D};
     /// Static variables
     public CharacterController charCont;
 	
@@ -39,43 +40,43 @@ public class Player : Character
 		switch(roleName)
 		{
 			case "musketeer":
-				setHP(100);
+				setDefaultHP(100);
                 setAttackSpeed(0.8f);
 				setReloadSpeed(1.5f);
 				
 				walkSpeed = 5;
-        		runSpeed = 11; 
-				stamina = 90; 
+        		runSpeed = 10; 
+				stamina = 120; 
                 break;
 
             case "royalGuard":
-				setHP(120);
-				setAttackSpeed(1.6f);
+				setDefaultHP(200);
+				setAttackSpeed(1);
 				setReloadSpeed(0.6f);
 
 				walkSpeed = 4;
-        		runSpeed = 8; 
-				stamina = 120;
+        		runSpeed = 9; 
+				stamina = 130;
                 break;
 
             case "pirate":
-				setHP(110);
-				setAttackSpeed(1.4f);
-				setReloadSpeed(1.2f);
+				setDefaultHP(100);
+				setAttackSpeed(1.2f);
+				setReloadSpeed(0.9f);
 
-				walkSpeed = 5;
-        		runSpeed = 9; 
-				stamina = 100;
+				walkSpeed = 6;
+        		runSpeed = 12;
+				stamina = 110;
                 break;
 
             case "lumberjack":
-				setHP(130);
-				setAttackSpeed(1.2f);
+				setDefaultHP(110);
+				setAttackSpeed(1.5f);
 				setReloadSpeed(0.4f);
 
 				walkSpeed = 5;
         		runSpeed = 8; 
-				stamina = 110;
+				stamina = 200;
                 break;
 
             default:
@@ -96,18 +97,11 @@ public class Player : Character
 			running = false;
 		}	
 
-		if(charCont.velocity != Vector3.zero)
-		{
-			isPlayerMoving = true;
-		}
-		else
-		{
-			isPlayerMoving = false;
-		}
-
         // Calculations
         StaminaStates();
         MoveCalc();
+
+		detectMovementKeyClick();
 	}
 
     // Physic and Movement Calculation Part
@@ -127,12 +121,26 @@ public class Player : Character
 
 		Vector3 velocityGravity = transform.right * 0 + velocityY * Vector3.up;
 		charCont.Move (velocityGravity * Time.deltaTime);
-		
-		//currentSpeed = new Vector3 (charCont.velocity.x,  0, charCont.velocity.z).magnitude;
 
 		if (charCont.isGrounded)
 		{
 			velocityY = 0;
+		}
+	}
+
+	void detectMovementKeyClick()
+	{
+		foreach(KeyCode key in movementKeys)
+		{
+			if(Input.GetKey(key))
+			{
+				isPlayerMoving = true;
+				break;
+			}
+			else
+			{
+				isPlayerMoving = false;
+			}
 		}
 	}
 
@@ -149,6 +157,7 @@ public class Player : Character
 		{
 			return float.MaxValue;
 		}
+
 		return smoothTime / airControlPercent;
 	}
 
@@ -203,7 +212,6 @@ public class Player : Character
 	}
 
     // Get and Set variables part
-
     /// stamina
     public float getStamina()
     {
@@ -250,5 +258,10 @@ public class Player : Character
 	public bool getIsPlayerMoving()
 	{
 		return isPlayerMoving;
+	}
+
+	public float getDefaultSP()
+	{
+		return defaultStamina;
 	}
 }
