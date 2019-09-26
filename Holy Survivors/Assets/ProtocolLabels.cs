@@ -19,8 +19,9 @@ namespace HD
         public const string playerMove = "G0";
         public const string playerRot = "G1"; 
         public const string playerMouse = "G2"; 
-        public const string lootState = "G3"; 
-        public const string envObjState = "G4";
-        public const string itemDropped = "G5";  
+        public const string lootState = "G3";
+        public const string itemDropped = "G4";  
+        public const string playerDeath = "G5"; 
+        public const string demonDeath = "G6"; 
     }
 }
