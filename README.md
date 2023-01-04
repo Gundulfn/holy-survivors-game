@@ -1,6 +1,6 @@
 # Holy Survivors
 
-This is a Co-op adventure and survival game project, UDP internet protocol based system implemented for the networking part. This game project is about defending your castle against demon hordes, players choose unique defender roles such as:
+This is a Co-op adventure and survival game project, UDP internet protocol based system is implemented for the networking part. This game project is about defending your castle against demon hordes, players choose unique defender roles such as:
 
 **Lumberjack:** Durable person slashing his enemies with a heavy axe, good at long-time battles  
 **Pirate:** Swift plunderer using a sword and an old pistol, good at quick attacks  
